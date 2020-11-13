@@ -20,20 +20,19 @@ NfcTag MifareClassic::read()
     byte data[dataSize];
 
     // read first block to get message length
-    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfcShield->uid)) != MFRC522::STATUS_OK)
+    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfcShield->uid)) == MFRC522::STATUS_OK)
     {
         if(_nfcShield->MIFARE_Read(currentBlock, data, &dataSize) != MFRC522::STATUS_OK)
-        {
-            if (!decodeTlv(data, messageLength, messageStartIndex)) {
-                return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, "ERROR"); // TODO should the error message go in NfcTag?
-            }
-        }
-        else
         {
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Error. Failed read block "));Serial.println(currentBlock);
 #endif
             return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
+        }
+
+        if (!decodeTlv(data, messageLength, messageStartIndex))
+        {
+            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, "ERROR"); // TODO should the error message go in NfcTag?
         }
     }
     else
@@ -55,7 +54,7 @@ NfcTag MifareClassic::read()
     Serial.print(F("Buffer Size "));Serial.println(bufferSize);
     #endif
 
-    while (index < bufferSize)
+    while (index < bufferSize-2)
     {
 
         // authenticate on every sector
@@ -73,7 +72,7 @@ NfcTag MifareClassic::read()
 
         // read the data
         byte readBufferSize = 18;
-        if(_nfcShield->MIFARE_Read(currentBlock, &buffer[index], &readBufferSize) != MFRC522::STATUS_OK)
+        if(_nfcShield->MIFARE_Read(currentBlock, &buffer[index], &readBufferSize) == MFRC522::STATUS_OK)
         {
             #ifdef MIFARE_CLASSIC_DEBUG
             Serial.print(F("Block "));Serial.print(currentBlock);Serial.print(" ");
@@ -92,7 +91,7 @@ NfcTag MifareClassic::read()
         currentBlock++;
 
         // skip the trailer block
-        if (((currentBlock < 128) && (currentBlock+1 % 4 == 0)) || ((currentBlock >= 128) && (currentBlock+1 % 16 == 0)))
+        if (((currentBlock < 128) && ((currentBlock+1) % 4 == 0)) || ((currentBlock >= 128) && ((currentBlock+1) % 16 == 0)))
         {
             #ifdef MIFARE_CLASSIC_DEBUG
             Serial.print(F("Skipping block "));Serial.println(currentBlock);
