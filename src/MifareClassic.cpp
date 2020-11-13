@@ -397,7 +397,7 @@ boolean MifareClassic::write(NdefMessage& m)
 
     // Write to tag
     unsigned int index = 0;
-    int currentBlock = 4;
+    byte currentBlock = 4;
     MFRC522::MIFARE_Key key = {{0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7}};
 
     while (index < sizeof(buffer))
@@ -405,10 +405,12 @@ boolean MifareClassic::write(NdefMessage& m)
 
         if (((currentBlock < 128) && (currentBlock % 4 == 0)) || ((currentBlock >= 128) && (currentBlock % 16 == 0)))
         {
-            if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfcShield->uid)) != MFRC522::STATUS_OK)
+            MFRC522::StatusCode status =_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfcShield->uid));
+            if (status != MFRC522::STATUS_OK)
             {
 #ifdef NDEF_USE_SERIAL
-                Serial.print(F("Error. Block Authentication failed for "));Serial.println(currentBlock);
+                Serial.print(F("Error. Block authentication failed for block "));Serial.println(currentBlock);
+                Serial.print(_nfcShield->GetStatusCodeName(status));
 #endif
                 return false;
             }
@@ -416,22 +418,21 @@ boolean MifareClassic::write(NdefMessage& m)
 
         if (_nfcShield->MIFARE_Write(currentBlock, &buffer[index], BLOCK_SIZE) != MFRC522::STATUS_OK)
         {
-            #ifdef MIFARE_CLASSIC_DEBUG
-            Serial.print(F("Wrote block "));Serial.print(currentBlock);Serial.print(" - ");
-            PrintHexChar(&buffer[index], BLOCK_SIZE);
-            #endif
-        }
-        else
-        {
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Write failed "));Serial.println(currentBlock);
 #endif
             return false;
         }
+
+        #ifdef MIFARE_CLASSIC_DEBUG
+        Serial.print(F("Wrote block "));Serial.print(currentBlock);Serial.print(" - ");
+        PrintHexChar(&buffer[index], BLOCK_SIZE);
+        #endif
+
         index += BLOCK_SIZE;
         currentBlock++;
 
-        if (((currentBlock < 128) && (currentBlock+1 % 4 == 0)) || ((currentBlock >= 128) && (currentBlock+1 % 16 == 0)))
+        if (((currentBlock < 128) && ((currentBlock+1) % 4 == 0)) || ((currentBlock >= 128) && ((currentBlock+1) % 16 == 0)))
         {
             // can't write to trailer block
             #ifdef MIFARE_CLASSIC_DEBUG
