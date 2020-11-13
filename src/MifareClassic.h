@@ -6,22 +6,31 @@
 
 #ifdef NDEF_SUPPORT_MIFARE_CLASSIC
 
+#define MIFARE_CLASSIC_DEBUG 1
+
+#define BLOCK_SIZE 16
+#define LONG_TLV_SIZE 4
+#define SHORT_TLV_SIZE 2
+
+#define MIFARE_CLASSIC ("Mifare Classic")
+
+
 #include <Due.h>
-#include <PN532.h>
+#include <MFRC522.h>
 #include <Ndef.h>
 #include <NfcTag.h>
 
 class MifareClassic
 {
     public:
-        MifareClassic(PN532& nfcShield);
+        MifareClassic(MFRC522 *nfcShield);
         ~MifareClassic();
-        NfcTag read(byte *uid, unsigned int uidLength);
-        boolean write(NdefMessage& ndefMessage, byte *uid, unsigned int uidLength);
-        boolean formatNDEF(byte * uid, unsigned int uidLength);
-        boolean formatMifare(byte * uid, unsigned int uidLength);
+        NfcTag read();
+        boolean write(NdefMessage& ndefMessage);
+        boolean formatNDEF();
+        boolean formatMifare();
     private:
-        PN532* _nfcShield;
+        MFRC522* _nfcShield;
         int getBufferSize(int messageLength);
         int getNdefStartIndex(byte *data);
         bool decodeTlv(byte *data, int &messageLength, int &messageStartIndex);

@@ -1,10 +1,9 @@
 #ifndef NfcAdapter_h
 #define NfcAdapter_h
 
-#include <PN532Interface.h>
-#include <PN532.h>
 #include <NfcTag.h>
 #include <Ndef.h>
+#include <MFRC522.h>
 
 // Drivers
 #include <MifareClassic.h>
@@ -22,11 +21,11 @@
 
 class NfcAdapter {
     public:
-        NfcAdapter(PN532Interface &interface);
+        NfcAdapter(MFRC522 *interface);
 
         ~NfcAdapter(void);
         void begin(boolean verbose=true);
-        boolean tagPresent(unsigned long timeout=0); // tagAvailable
+        boolean tagPresent(); // tagAvailable
         NfcTag read();
         boolean write(NdefMessage& ndefMessage);
         // erase tag by writing an empty NDEF record
@@ -36,9 +35,7 @@ class NfcAdapter {
         // reset tag back to factory state
         boolean clean();
     private:
-        PN532* shield;
-        byte uid[7];  // Buffer to store the returned UID
-        unsigned int uidLength; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+        MFRC522* shield;
         unsigned int guessTagType();
 };
 
