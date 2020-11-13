@@ -27,8 +27,8 @@ class NdefMessage
         void addEmptyRecord();
 
         unsigned int getRecordCount();
-        NdefRecord getRecord(int index);
-        NdefRecord operator[](int index);
+        NdefRecord getRecord(unsigned int index);
+        NdefRecord operator[](unsigned int index);
 
 #ifdef NDEF_USE_SERIAL
         void print();

@@ -31,10 +31,9 @@ NfcTag MifareUltralight::read()
         return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2, message);
     }
 
-    uint8_t page;
     uint8_t index = 0;
     byte buffer[bufferSize];
-    for (page = ULTRALIGHT_DATA_START_PAGE; page < ULTRALIGHT_MAX_PAGE; page+=(ULTRALIGHT_READ_SIZE/ULTRALIGHT_PAGE_SIZE))
+    for (uint8_t page = ULTRALIGHT_DATA_START_PAGE; page < ULTRALIGHT_MAX_PAGE; page+=(ULTRALIGHT_READ_SIZE/ULTRALIGHT_PAGE_SIZE))
     {
         // read the data
         byte dataSize = ULTRALIGHT_READ_SIZE + 2;
@@ -44,6 +43,9 @@ NfcTag MifareUltralight::read()
             #ifdef MIFARE_ULTRALIGHT_DEBUG
             Serial.print(F("Page "));Serial.print(page);Serial.print(" ");
             PrintHexChar(&buffer[index], ULTRALIGHT_PAGE_SIZE);
+            PrintHexChar(&buffer[index+ULTRALIGHT_PAGE_SIZE], ULTRALIGHT_PAGE_SIZE);
+            PrintHexChar(&buffer[index+2*ULTRALIGHT_PAGE_SIZE], ULTRALIGHT_PAGE_SIZE);
+            PrintHexChar(&buffer[index+3*ULTRALIGHT_PAGE_SIZE], ULTRALIGHT_PAGE_SIZE);
             #endif
         }
         else
@@ -51,9 +53,7 @@ NfcTag MifareUltralight::read()
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Read failed "));Serial.println(page);
 #endif
-            // TODO error handling
-            messageLength = 0;
-            break;
+            return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2);
         }
 
         if (index >= (messageLength + ndefStartIndex))
@@ -109,17 +109,19 @@ void MifareUltralight::readCapabilityContainer()
 // read enough of the message to find the ndef message length
 void MifareUltralight::findNdefMessage()
 {
-    int page;
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
     byte data[dataSize]; // 3 pages, but 4 + CRC are returned
 
     // the nxp read command reads 4 pages, unfortunately adafruit give me one page at a time
 
-    if(nfc->MIFARE_Read(page, data, &dataSize) == MFRC522::STATUS_OK)
+    if(nfc->MIFARE_Read(4, data, &dataSize) == MFRC522::STATUS_OK)
     {
         #ifdef MIFARE_ULTRALIGHT_DEBUG
-        Serial.print(F("Page "));Serial.print(page);Serial.print(F(" - "));
+        Serial.println(F("Pages 4-7"));
         PrintHexChar(data, 18);
+        PrintHexChar(data+ULTRALIGHT_PAGE_SIZE, 18);
+        PrintHexChar(data+2*ULTRALIGHT_PAGE_SIZE, 18);
+        PrintHexChar(data+3*ULTRALIGHT_PAGE_SIZE, 18);
         #endif
 
         if (data[0] == 0x03)
@@ -147,8 +149,6 @@ void MifareUltralight::calculateBufferSize()
 {
     // TLV terminator 0xFE is 1 byte
     bufferSize = messageLength + ndefStartIndex + 1;
-
-    uint8_t pagesPerRead = ULTRALIGHT_READ_SIZE / ULTRALIGHT_PAGE_SIZE;
 
     if (bufferSize % ULTRALIGHT_READ_SIZE != 0)
     {

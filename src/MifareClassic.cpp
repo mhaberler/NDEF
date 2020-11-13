@@ -66,7 +66,8 @@ NfcTag MifareClassic::read()
 #ifdef NDEF_USE_SERIAL
                 Serial.print(F("Error. Block Authentication failed for "));Serial.println(currentBlock);
 #endif
-                // TODO error handling
+                // TODO Nicer error handling
+                return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
             }
         }
 
@@ -84,7 +85,8 @@ NfcTag MifareClassic::read()
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Read failed "));Serial.println(currentBlock);
 #endif
-            // TODO handle errors here
+            // TODO Nicer error handling
+            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
         }
 
         index += BLOCK_SIZE;
