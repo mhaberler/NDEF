@@ -23,9 +23,9 @@ class MifareClassic
         MifareClassic(MFRC522 *nfcShield);
         ~MifareClassic();
         NfcTag read();
-        boolean write(NdefMessage& ndefMessage);
-        boolean formatNDEF();
-        boolean formatMifare();
+        bool write(NdefMessage& ndefMessage);
+        bool formatNDEF();
+        bool formatMifare();
     private:
         MFRC522* _nfcShield;
         int getBufferSize(int messageLength);

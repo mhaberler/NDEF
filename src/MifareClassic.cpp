@@ -196,7 +196,7 @@ bool MifareClassic::decodeTlv(byte *data, int &messageLength, int &messageStartI
 
 // Intialized NDEF tag contains one empty NDEF TLV 03 00 FE - AN1304 6.3.1
 // We are formatting in read/write mode with a NDEF TLV 03 03 and an empty NDEF record D0 00 00 FE - AN1304 6.3.2
-boolean MifareClassic::formatNDEF()
+bool MifareClassic::formatNDEF()
 {
     MFRC522::MIFARE_Key keya = {{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
     byte emptyNdefMesg[16] = {0x03, 0x03, 0xD0, 0x00, 0x00, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -297,7 +297,7 @@ boolean MifareClassic::formatNDEF()
   ((sector)*NR_BLOCK_OF_SHORTSECTOR + NR_BLOCK_OF_SHORTSECTOR-1):\
   (NR_SHORTSECTOR*NR_BLOCK_OF_SHORTSECTOR + (sector-NR_SHORTSECTOR)*NR_BLOCK_OF_LONGSECTOR + NR_BLOCK_OF_LONGSECTOR-1))
 
-boolean MifareClassic::formatMifare()
+bool MifareClassic::formatMifare()
 {
 
     // The default Mifare Classic key
@@ -365,7 +365,7 @@ boolean MifareClassic::formatMifare()
     return true;
 }
 
-boolean MifareClassic::write(NdefMessage& m)
+bool MifareClassic::write(NdefMessage& m)
 {
 
     uint8_t encoded[m.getEncodedSize()];
