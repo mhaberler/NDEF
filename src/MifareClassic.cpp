@@ -27,12 +27,12 @@ NfcTag MifareClassic::read()
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Error. Failed read block "));Serial.println(currentBlock);
 #endif
-            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
+            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
         }
 
         if (!decodeTlv(data, messageLength, messageStartIndex))
         {
-            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, "ERROR"); // TODO should the error message go in NfcTag?
+            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_UNKNOWN); // TODO should the error message go in NfcTag?
         }
     }
     else
@@ -41,7 +41,7 @@ NfcTag MifareClassic::read()
         Serial.println(F("Tag is not NDEF formatted."));
 #endif
         // TODO set tag.isFormatted = false
-        return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
+        return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
     }
 
     // this should be nested in the message length loop
@@ -67,7 +67,7 @@ NfcTag MifareClassic::read()
                 Serial.print(F("Error. Block Authentication failed for "));Serial.println(currentBlock);
 #endif
                 // TODO Nicer error handling
-                return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
+                return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
             }
         }
 
@@ -86,7 +86,7 @@ NfcTag MifareClassic::read()
             Serial.print(F("Read failed "));Serial.println(currentBlock);
 #endif
             // TODO Nicer error handling
-            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC);
+            return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
         }
 
         index += BLOCK_SIZE;
@@ -102,7 +102,7 @@ NfcTag MifareClassic::read()
         }
     }
 
-    return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, MIFARE_CLASSIC, &buffer[messageStartIndex], messageLength);
+    return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC, &buffer[messageStartIndex], messageLength);
 }
 
 int MifareClassic::getBufferSize(int messageLength)

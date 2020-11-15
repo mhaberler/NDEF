@@ -15,15 +15,15 @@ class NdefMessage
         ~NdefMessage();
         NdefMessage& operator=(const NdefMessage& rhs);
 
-        int getEncodedSize(); // need so we can pass array to encode
+        unsigned int getEncodedSize(); // need so we can pass array to encode
         void encode(byte *data);
 
         boolean addRecord(NdefRecord& record);
-        void addMimeMediaRecord(String mimeType, String payload);
-        void addMimeMediaRecord(String mimeType, byte *payload, int payloadLength);
-        void addTextRecord(String text);
-        void addTextRecord(String text, String encoding);
-        void addUriRecord(String uri);
+        void addMimeMediaRecord(const char *mimeType, const char *payload);
+        void addMimeMediaRecord(const char *mimeType, byte *payload, int payloadLength);
+        void addTextRecord(const char *text);
+        void addTextRecord(const char *text, const char *encoding);
+        void addUriRecord(const char *uri);
         void addEmptyRecord();
 
         unsigned int getRecordCount();

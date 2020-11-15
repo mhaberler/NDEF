@@ -17,7 +17,7 @@ NdefMessage::NdefMessage(const byte * data, const int numBytes)
 
     int index = 0;
 
-    while (index <= numBytes)
+    while (index < numBytes)
     {
 
         // decode tnf - first byte is tnf with bit flags
@@ -28,7 +28,7 @@ NdefMessage::NdefMessage(const byte * data, const int numBytes)
         // bool cf = tnf_byte & 0x20;
         bool sr = tnf_byte & 0x10;
         bool il = tnf_byte & 0x8;
-        byte tnf = (tnf_byte & 0x7);
+        NdefRecord::TNF tnf = static_cast<NdefRecord::TNF>(tnf_byte & 0x7);
 
         NdefRecord record = NdefRecord();
         record.setTnf(tnf);
@@ -121,9 +121,9 @@ unsigned int NdefMessage::getRecordCount()
     return _recordCount;
 }
 
-int NdefMessage::getEncodedSize()
+unsigned int NdefMessage::getEncodedSize()
 {
-    int size = 0;
+    unsigned int size = 0;
     for (unsigned int i = 0; i < _recordCount; i++)
     {
         size += _records[i].getEncodedSize();
@@ -146,7 +146,7 @@ void NdefMessage::encode(uint8_t* data)
 
 }
 
-boolean NdefMessage::addRecord(NdefRecord& record)
+bool NdefMessage::addRecord(NdefRecord& record)
 {
 
     if (_recordCount < MAX_NDEF_RECORDS)
@@ -164,86 +164,70 @@ boolean NdefMessage::addRecord(NdefRecord& record)
     }
 }
 
-void NdefMessage::addMimeMediaRecord(String mimeType, String payload)
+void NdefMessage::addMimeMediaRecord(const char *mimeType, const char *payload)
 {
-
-    byte payloadBytes[payload.length() + 1];
-    payload.getBytes(payloadBytes, sizeof(payloadBytes));
-
-    addMimeMediaRecord(mimeType, payloadBytes, payload.length());
+    addMimeMediaRecord(mimeType, (uint8_t *)payload, strlen(payload)+1);
 }
 
-void NdefMessage::addMimeMediaRecord(String mimeType, uint8_t* payload, int payloadLength)
+void NdefMessage::addMimeMediaRecord(const char *mimeType, byte* payload, int payloadLength)
 {
-    NdefRecord r = NdefRecord();
-    r.setTnf(TNF_MIME_MEDIA);
-
-    byte type[mimeType.length() + 1];
-    mimeType.getBytes(type, sizeof(type));
-    r.setType(type, mimeType.length());
-
+    NdefRecord r;
+    r.setTnf(NdefRecord::TNF_MIME_MEDIA);
+    r.setType((byte *)mimeType, strlen(mimeType)+1);
     r.setPayload(payload, payloadLength);
 
     addRecord(r);
 }
 
-void NdefMessage::addTextRecord(String text)
+void NdefMessage::addTextRecord(const char *text)
 {
     addTextRecord(text, "en");
 }
 
-void NdefMessage::addTextRecord(String text, String encoding)
+void NdefMessage::addTextRecord(const char *text, const char *language)
 {
-    NdefRecord r = NdefRecord();
-    r.setTnf(TNF_WELL_KNOWN);
+    NdefRecord r;
 
-    uint8_t RTD_TEXT[1] = { 0x54 }; // TODO this should be a constant or preprocessor
+    r.setTnf(NdefRecord::TNF_WELL_KNOWN);
+
+    uint8_t RTD_TEXT[] = { NdefRecord::RTD_TEXT };
     r.setType(RTD_TEXT, sizeof(RTD_TEXT));
 
-    // X is a placeholder for encoding length
-    // TODO is it more efficient to build w/o string concatenation?
-    String payloadString = "X" + encoding + text;
+    size_t languageLength = strlen(language);
+    languageLength = (languageLength > 5 ? 5 : languageLength);
 
-    byte payload[payloadString.length() + 1];
-    payloadString.getBytes(payload, sizeof(payload));
+    byte header[6];
+    // This is the status byte, we always assume UTF-8 encoding here
+    header[0] = languageLength;
+    memcpy(header+1, language, languageLength);
 
-    // replace X with the real encoding length
-    payload[0] = encoding.length();
-
-    r.setPayload(payload, payloadString.length());
+    r.setPayload(header, languageLength+1, (byte *)text, strlen(text));
 
     addRecord(r);
 }
 
-void NdefMessage::addUriRecord(String uri)
+void NdefMessage::addUriRecord(const char *uri)
 {
-    NdefRecord* r = new NdefRecord();
-    r->setTnf(TNF_WELL_KNOWN);
+    NdefRecord r;
+    r.setTnf(NdefRecord::TNF_WELL_KNOWN);
 
-    uint8_t RTD_URI[1] = { 0x55 }; // TODO this should be a constant or preprocessor
-    r->setType(RTD_URI, sizeof(RTD_URI));
+    uint8_t RTD_URI[] = { NdefRecord::RTD_URI };
+    r.setType(RTD_URI, sizeof(RTD_URI));
 
-    // X is a placeholder for identifier code
-    String payloadString = "X" + uri;
+    size_t uriLength = strlen(uri);
 
-    byte payload[payloadString.length() + 1];
-    payloadString.getBytes(payload, sizeof(payload));
+    byte header[] = {0x00};
 
-    // add identifier code 0x0, meaning no prefix substitution
-    payload[0] = 0x0;
+    r.setPayload(header, sizeof(header), (byte *)uri, uriLength);
 
-    r->setPayload(payload, payloadString.length());
-
-    addRecord(*r);
-    delete(r);
+    addRecord(r);
 }
 
 void NdefMessage::addEmptyRecord()
 {
-    NdefRecord* r = new NdefRecord();
-    r->setTnf(TNF_EMPTY);
-    addRecord(*r);
-    delete(r);
+    NdefRecord r;
+    r.setTnf(NdefRecord::TNF_EMPTY);
+    addRecord(r);
 }
 
 NdefRecord NdefMessage::getRecord(unsigned int index)

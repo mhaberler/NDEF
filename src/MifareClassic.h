@@ -12,9 +12,6 @@
 #define LONG_TLV_SIZE 4
 #define SHORT_TLV_SIZE 2
 
-#define MIFARE_CLASSIC ("Mifare Classic")
-
-
 #include <Due.h>
 #include <MFRC522.h>
 #include <Ndef.h>

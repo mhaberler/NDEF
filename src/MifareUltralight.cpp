@@ -18,7 +18,7 @@ NfcTag MifareUltralight::read()
 #ifdef NDEF_USE_SERIAL
         Serial.println(F("WARNING: Tag is not formatted."));
 #endif
-        return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2);
+        return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2);
     }
 
     readCapabilityContainer(); // meta info for tag
@@ -28,7 +28,7 @@ NfcTag MifareUltralight::read()
     if (messageLength == 0) { // data is 0x44 0x03 0x00 0xFE
         NdefMessage message = NdefMessage();
         message.addEmptyRecord();
-        return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2, message);
+        return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2, message);
     }
 
     uint8_t index = 0;
@@ -53,7 +53,7 @@ NfcTag MifareUltralight::read()
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Read failed "));Serial.println(page);
 #endif
-            return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2);
+            return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2);
         }
 
         if (index >= (messageLength + ndefStartIndex))
@@ -65,7 +65,7 @@ NfcTag MifareUltralight::read()
     }
 
     NdefMessage ndefMessage = NdefMessage(&buffer[ndefStartIndex], messageLength);
-    return NfcTag(nfc->uid.uidByte, nfc->uid.size, NFC_FORUM_TAG_TYPE_2, ndefMessage);
+    return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2, ndefMessage);
 
 }
 

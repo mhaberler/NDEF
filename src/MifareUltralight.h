@@ -15,8 +15,6 @@
 #define ULTRALIGHT_DATA_START_INDEX 2
 #define ULTRALIGHT_MAX_PAGE 63
 
-#define NFC_FORUM_TAG_TYPE_2 ("NFC Forum Type 2")
-
 class MifareUltralight
 {
     public:

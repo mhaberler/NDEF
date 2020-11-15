@@ -47,9 +47,9 @@ void PrintHexChar(const byte * data, const long numBytes)
 }
 
 // Note if buffer % blockSize != 0, last block will not be written
-void DumpHex(const byte * data, const long numBytes, const unsigned int blockSize)
+void DumpHex(const byte * data, const unsigned long numBytes, const unsigned int blockSize)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < (numBytes / blockSize); i++)
     {
         PrintHexChar(data, blockSize);

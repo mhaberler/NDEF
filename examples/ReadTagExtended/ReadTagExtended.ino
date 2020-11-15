@@ -44,13 +44,12 @@ void loop(void) {
         // NdefRecord record = message[i]; // alternate syntax
 
         Serial.print("  TNF: ");Serial.println(record.getTnf());
-        Serial.print("  Type: ");Serial.println(record.getType()); // will be "" for TNF_EMPTY
+        Serial.print("  Type: ");PrintHexChar(record.getType(), record.getTypeLength()); // will be "" for TNF_EMPTY
 
         // The TNF and Type should be used to determine how your application processes the payload
         // There's no generic processing for the payload, it's returned as a byte[]
         int payloadLength = record.getPayloadLength();
-        byte payload[payloadLength];
-        record.getPayload(payload);
+        const byte *payload = record.getPayload();
 
         // Print the Hex and Printable Characters
         Serial.print("  Payload (HEX): ");
@@ -66,9 +65,8 @@ void loop(void) {
         Serial.println(payloadAsString);
 
         // id is probably blank and will return ""
-        String uid = record.getId();
-        if (uid != "") {
-          Serial.print("  ID: ");Serial.println(uid);
+        if (record.getIdLength() > 0) {
+          Serial.print("  ID: ");PrintHexChar(record.getId(), record.getIdLength());
         }
       }
     }
