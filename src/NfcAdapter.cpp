@@ -28,7 +28,6 @@ boolean NfcAdapter::tagPresent()
 
     MFRC522::PICC_Type piccType = shield->PICC_GetType(shield->uid.sak);
     return ((piccType == MFRC522::PICC_TYPE_MIFARE_1K) || (piccType == MFRC522::PICC_TYPE_MIFARE_UL));
-  }
 }
 
 boolean NfcAdapter::erase()
