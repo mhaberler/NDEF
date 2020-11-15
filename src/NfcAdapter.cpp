@@ -9,18 +9,21 @@ NfcAdapter::~NfcAdapter(void)
 {
 }
 
-void NfcAdapter::begin(boolean verbose)
+void NfcAdapter::begin(bool verbose)
 {
+#ifdef NDEF_USE_SERIAL
     if (verbose)
     {
-#ifdef NDEF_USE_SERIAL
         shield->PCD_DumpVersionToSerial();
-#endif
     }
+#endif
 }
 
-boolean NfcAdapter::tagPresent()
+bool NfcAdapter::tagPresent()
 {
+    // If tag has already been authenticated nothing else will work until we stop crypto (shouldn't hurt)
+    shield->PCD_StopCrypto1();
+
     if(!(shield->PICC_IsNewCardPresent() && shield->PICC_ReadCardSerial()))
     {
         return false;
@@ -30,21 +33,20 @@ boolean NfcAdapter::tagPresent()
     return ((piccType == MFRC522::PICC_TYPE_MIFARE_1K) || (piccType == MFRC522::PICC_TYPE_MIFARE_UL));
 }
 
-boolean NfcAdapter::erase()
+bool NfcAdapter::erase()
 {
     NdefMessage message = NdefMessage();
     message.addEmptyRecord();
     return write(message);
 }
 
-boolean NfcAdapter::format()
+bool NfcAdapter::format()
 {
-    boolean success;
 #ifdef NDEF_SUPPORT_MIFARE_CLASSIC
     if(shield->PICC_GetType(shield->uid.sak) == MFRC522::PICC_TYPE_MIFARE_1K)
     {
         MifareClassic mifareClassic = MifareClassic(shield);
-        success = mifareClassic.formatNDEF();
+        return mifareClassic.formatNDEF();
     }
     else
 #endif
@@ -53,19 +55,18 @@ boolean NfcAdapter::format()
 #ifdef NDEF_USE_SERIAL
         Serial.print(F("No need for formating a UL"));
 #endif
-        success = true;
+        return true;
     }
     else
     {
 #ifdef NDEF_USE_SERIAL
         Serial.print(F("Unsupported Tag."));
 #endif
-        success = false;
+        return false;
     }
-    return success;
 }
 
-boolean NfcAdapter::clean()
+bool NfcAdapter::clean()
 {
     NfcTag::TagType type = guessTagType();
 
@@ -97,7 +98,6 @@ boolean NfcAdapter::clean()
     }
 
 }
-
 
 NfcTag NfcAdapter::read()
 {
@@ -138,9 +138,8 @@ NfcTag NfcAdapter::read()
 
 }
 
-boolean NfcAdapter::write(NdefMessage& ndefMessage)
+bool NfcAdapter::write(NdefMessage& ndefMessage)
 {
-    boolean success;
     uint8_t type = guessTagType();
 
 #ifdef NDEF_SUPPORT_MIFARE_CLASSIC
@@ -150,7 +149,7 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
         Serial.println(F("Writing Mifare Classic"));
         #endif
         MifareClassic mifareClassic = MifareClassic(shield);
-        success = mifareClassic.write(ndefMessage);
+        return mifareClassic.write(ndefMessage);
     }
     else
 #endif
@@ -160,29 +159,29 @@ boolean NfcAdapter::write(NdefMessage& ndefMessage)
         Serial.println(F("Writing Mifare Ultralight"));
         #endif
         MifareUltralight mifareUltralight = MifareUltralight(shield);
-        success = mifareUltralight.write(ndefMessage);
+        return mifareUltralight.write(ndefMessage);
     }
     else if (type == NfcTag::TYPE_UNKNOWN)
     {
 #ifdef NDEF_USE_SERIAL
         Serial.print(F("Can not determine tag type"));
 #endif
-        success = false;
+        return false;
     }
     else
     {
 #ifdef NDEF_USE_SERIAL
         Serial.print(F("No driver for card type "));Serial.println(type);
 #endif
-        success = false;
+        return false;
     }
-
-    return success;
 }
 
-// TODO this should return a Driver MifareClassic, MifareUltralight, Type 4, Unknown
-// Guess Tag Type by looking at the ATQA and SAK values
-// Need to follow spec for Card Identification. Maybe AN1303, AN1305 and ???
+void NfcAdapter::haltTag() {
+    shield->PICC_HaltA();
+    shield->PCD_StopCrypto1();
+}
+
 NfcTag::TagType NfcAdapter::guessTagType()
 {
 
