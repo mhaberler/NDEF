@@ -24,6 +24,7 @@ class NdefMessage
         void addTextRecord(const char *text);
         void addTextRecord(const char *text, const char *encoding);
         void addUriRecord(const char *uri);
+        void addExternalRecord(const char *type, const byte *payload, int payloadLength);
         void addEmptyRecord();
 
         unsigned int getRecordCount();

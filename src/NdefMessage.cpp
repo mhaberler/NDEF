@@ -184,6 +184,8 @@ void NdefMessage::addTextRecord(const char *text)
     addTextRecord(text, "en");
 }
 
+// Limited to language codes <= 5 chars (which is enough for "en" or "en-US")
+// Only supports UTF-8 encoding
 void NdefMessage::addTextRecord(const char *text, const char *language)
 {
     NdefRecord r;
@@ -221,6 +223,17 @@ void NdefMessage::addUriRecord(const char *uri)
     r.setPayload(header, sizeof(header), (byte *)uri, uriLength);
 
     addRecord(r);
+}
+
+// Type shoulde be something like my.com:xx
+void NdefMessage::addExternalRecord(const char *type, const byte *payload, int payloadLength)
+{
+	NdefRecord r;
+	r.setTnf(NdefRecord::TNF_EXTERNAL_TYPE);
+
+	r.setType((byte *)type, strlen(type));
+    r.setPayload(payload, payloadLength);
+	addRecord(r);
 }
 
 void NdefMessage::addEmptyRecord()
