@@ -1,16 +1,13 @@
 #ifndef NfcAdapter_h
 #define NfcAdapter_h
 
+#include <MFRC522.h>
 #include <NfcTag.h>
 #include <Ndef.h>
-#include <MFRC522.h>
 
 // Drivers
 #include <MifareClassic.h>
 #include <MifareUltralight.h>
-
-#define IRQ   (2)
-#define RESET (3)  // Not connected by default on the NFC Shield
 
 class NfcAdapter {
     public:

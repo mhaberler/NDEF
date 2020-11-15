@@ -21,7 +21,14 @@ void NfcAdapter::begin(boolean verbose)
 
 boolean NfcAdapter::tagPresent()
 {
-    return (shield->PICC_IsNewCardPresent() && shield->PICC_ReadCardSerial());
+    if(!(shield->PICC_IsNewCardPresent() && shield->PICC_ReadCardSerial()))
+    {
+        return false;
+    }
+
+    MFRC522::PICC_Type piccType = shield->PICC_GetType(shield->uid.sak);
+    return ((piccType == MFRC522::PICC_TYPE_MIFARE_1K) || (piccType == MFRC522::PICC_TYPE_MIFARE_UL));
+  }
 }
 
 boolean NfcAdapter::erase()
