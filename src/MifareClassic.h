@@ -6,7 +6,7 @@
 
 #ifdef NDEF_SUPPORT_MIFARE_CLASSIC
 
-#define MIFARE_CLASSIC_DEBUG 1
+//#define MIFARE_CLASSIC_DEBUG 1
 
 #define BLOCK_SIZE 16
 #define LONG_TLV_SIZE 4
@@ -30,7 +30,7 @@ class MifareClassic
         MFRC522* _nfcShield;
         int getBufferSize(int messageLength);
         int getNdefStartIndex(byte *data);
-        bool decodeTlv(byte *data, int &messageLength, int &messageStartIndex);
+        bool decodeTlv(byte *data, int *messageLength, int *messageStartIndex);
 };
 
 #endif

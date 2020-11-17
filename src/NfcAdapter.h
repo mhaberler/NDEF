@@ -9,6 +9,8 @@
 #include <MifareClassic.h>
 #include <MifareUltralight.h>
 
+//#define NDEF_DEBUG 1
+
 class NfcAdapter {
     public:
         NfcAdapter(MFRC522 *interface);

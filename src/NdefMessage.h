@@ -27,16 +27,16 @@ class NdefMessage
         void addExternalRecord(const char *type, const byte *payload, int payloadLength);
         void addEmptyRecord();
 
-        unsigned int getRecordCount();
-        NdefRecord getRecord(unsigned int index);
-        NdefRecord operator[](unsigned int index);
+        uint8_t getRecordCount();
+        NdefRecord getRecord(uint8_t index);
+        NdefRecord operator[](uint8_t index);
 
 #ifdef NDEF_USE_SERIAL
         void print();
 #endif
     private:
-        NdefRecord _records[MAX_NDEF_RECORDS];
-        unsigned int _recordCount;
+        NdefRecord *_records[MAX_NDEF_RECORDS];
+        uint8_t _recordCount;
 };
 
 #endif

@@ -3,8 +3,6 @@
 MifareUltralight::MifareUltralight(MFRC522 *nfcShield)
 {
     nfc = nfcShield;
-    ndefStartIndex = 0;
-    messageLength = 0;
 }
 
 MifareUltralight::~MifareUltralight()
@@ -21,9 +19,11 @@ NfcTag MifareUltralight::read()
         return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2);
     }
 
-    readCapabilityContainer(); // meta info for tag
-    findNdefMessage();
-    calculateBufferSize();
+    uint16_t messageLength = 0;
+    uint16_t ndefStartIndex = 0;
+    findNdefMessage(&messageLength, &ndefStartIndex);
+
+    uint16_t bufferSize = calculateBufferSize(messageLength, ndefStartIndex);
 
     if (messageLength == 0) { // data is 0x44 0x03 0x00 0xFE
         NdefMessage message = NdefMessage();
@@ -89,8 +89,9 @@ boolean MifareUltralight::isUnformatted()
 }
 
 // page 3 has tag capabilities
-void MifareUltralight::readCapabilityContainer()
+uint16_t MifareUltralight::readTagSize()
 {
+    uint16_t tagCapacity = 0;
     byte dataSize = ULTRALIGHT_READ_SIZE+2;
     byte data[ULTRALIGHT_PAGE_SIZE];
     MFRC522::StatusCode status = nfc->MIFARE_Read(3, data, &dataSize);
@@ -104,15 +105,15 @@ void MifareUltralight::readCapabilityContainer()
 
         // TODO future versions should get lock information
     }
+
+    return tagCapacity;
 }
 
 // read enough of the message to find the ndef message length
-void MifareUltralight::findNdefMessage()
+void MifareUltralight::findNdefMessage(uint16_t *messageLength, uint16_t *ndefStartIndex)
 {
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
     byte data[dataSize]; // 3 pages, but 4 + CRC are returned
-
-    // the nxp read command reads 4 pages, unfortunately adafruit give me one page at a time
 
     if(nfc->MIFARE_Read(4, data, &dataSize) == MFRC522::STATUS_OK)
     {
@@ -126,29 +127,29 @@ void MifareUltralight::findNdefMessage()
 
         if (data[0] == 0x03)
         {
-            messageLength = data[1];
-            ndefStartIndex = 2;
+            *messageLength = data[1];
+            *ndefStartIndex = 2;
         }
         else if (data[5] == 0x3) // page 5 byte 1
         {
             // TODO should really read the lock control TLV to ensure byte[5] is correct
-            messageLength = data[6];
-            ndefStartIndex = 7;
+            *messageLength = data[6];
+            *ndefStartIndex = 7;
         }
     }
 
     #ifdef MIFARE_ULTRALIGHT_DEBUG
-    Serial.print(F("messageLength "));Serial.println(messageLength);
-    Serial.print(F("ndefStartIndex "));Serial.println(ndefStartIndex);
+    Serial.print(F("messageLength "));Serial.println(*messageLength);
+    Serial.print(F("ndefStartIndex "));Serial.println(*ndefStartIndex);
     #endif
 }
 
 // buffer is larger than the message, need to handle some data before and after
 // message and need to ensure we read full pages
-void MifareUltralight::calculateBufferSize()
+uint16_t MifareUltralight::calculateBufferSize(uint16_t messageLength, uint16_t ndefStartIndex)
 {
     // TLV terminator 0xFE is 1 byte
-    bufferSize = messageLength + ndefStartIndex + 1;
+    uint16_t bufferSize = messageLength + ndefStartIndex + 1;
 
     if (bufferSize % ULTRALIGHT_READ_SIZE != 0)
     {
@@ -158,6 +159,8 @@ void MifareUltralight::calculateBufferSize()
 
     //MFRC522 also return CRC
     bufferSize += 2;
+
+    return bufferSize;
 }
 
 boolean MifareUltralight::write(NdefMessage& m)
@@ -169,11 +172,11 @@ boolean MifareUltralight::write(NdefMessage& m)
 #endif
         return false;
     }
-    readCapabilityContainer(); // meta info for tag
+    uint16_t tagCapacity = readTagSize(); // meta info for tag
 
-    messageLength  = m.getEncodedSize();
-    ndefStartIndex = messageLength < 0xFF ? 2 : 4;
-    calculateBufferSize();
+    uint16_t messageLength  = m.getEncodedSize();
+    uint16_t ndefStartIndex = messageLength < 0xFF ? 2 : 4;
+    uint16_t bufferSize = calculateBufferSize(messageLength, ndefStartIndex);
 
     if(bufferSize>tagCapacity) {
 	    #ifdef MIFARE_ULTRALIGHT_DEBUG
@@ -234,7 +237,7 @@ boolean MifareUltralight::write(NdefMessage& m)
 // zero out tag data like the NXP Tag Write Android application
 boolean MifareUltralight::clean()
 {
-    readCapabilityContainer(); // meta info for tag
+    uint16_t tagCapacity = readTagSize();
 
     uint8_t pages = (tagCapacity / ULTRALIGHT_PAGE_SIZE) + ULTRALIGHT_DATA_START_PAGE;
 

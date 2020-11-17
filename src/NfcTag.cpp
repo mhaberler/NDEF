@@ -54,8 +54,7 @@ NfcTag& NfcTag::operator=(const NfcTag& rhs)
         _uid = rhs._uid;
         _uidLength = rhs._uidLength;
         _tagType = rhs._tagType;
-        // TODO do I need a copy here?
-        _ndefMessage = rhs._ndefMessage;
+        _ndefMessage = new NdefMessage(*rhs._ndefMessage);
     }
     return *this;
 }

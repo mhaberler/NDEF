@@ -177,6 +177,7 @@ bool NfcAdapter::write(NdefMessage& ndefMessage)
     }
 }
 
+// Current tag will not be "visible" until removed from the RFID field
 void NfcAdapter::haltTag() {
     shield->PICC_HaltA();
     shield->PCD_StopCrypto1();

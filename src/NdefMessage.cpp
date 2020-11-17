@@ -7,11 +7,10 @@ NdefMessage::NdefMessage(void)
 
 NdefMessage::NdefMessage(const byte * data, const int numBytes)
 {
-    #ifdef NDEF_DEBUG
+#ifdef NDEF_USE_SERIAL
     Serial.print(F("Decoding "));Serial.print(numBytes);Serial.println(F(" bytes"));
     PrintHexChar(data, numBytes);
-    //DumpHex(data, numBytes, 16);
-    #endif
+#endif
 
     _recordCount = 0;
 
@@ -30,8 +29,8 @@ NdefMessage::NdefMessage(const byte * data, const int numBytes)
         bool il = tnf_byte & 0x8;
         NdefRecord::TNF tnf = static_cast<NdefRecord::TNF>(tnf_byte & 0x7);
 
-        NdefRecord record = NdefRecord();
-        record.setTnf(tnf);
+        NdefRecord *record = new NdefRecord();
+        record->setTnf(tnf);
 
         index++;
         int typeLength = data[index];
@@ -60,19 +59,20 @@ NdefMessage::NdefMessage(const byte * data, const int numBytes)
         }
 
         index++;
-        record.setType(&data[index], typeLength);
+        record->setType(&data[index], typeLength);
         index += typeLength;
 
         if (il)
         {
-            record.setId(&data[index], idLength);
+            record->setId(&data[index], idLength);
             index += idLength;
         }
 
-        record.setPayload(&data[index], payloadLength);
+        record->setPayload(&data[index], payloadLength);
         index += payloadLength;
 
-        addRecord(record);
+        _records[_recordCount] = record;
+        _recordCount++;
 
         if (me) break; // last message
     }
@@ -81,17 +81,19 @@ NdefMessage::NdefMessage(const byte * data, const int numBytes)
 
 NdefMessage::NdefMessage(const NdefMessage& rhs)
 {
-
-    _recordCount = rhs._recordCount;
-    for (unsigned int i = 0; i < _recordCount; i++)
+    _recordCount = 0;
+    for (unsigned int i = 0; i < rhs._recordCount; i++)
     {
-        _records[i] = rhs._records[i];
+        addRecord(*(rhs._records[i]));
     }
-
 }
 
 NdefMessage::~NdefMessage()
 {
+    for (int i = 0; i < _recordCount; i++)
+    {
+        delete(_records[i]);
+    }
 }
 
 NdefMessage& NdefMessage::operator=(const NdefMessage& rhs)
@@ -101,22 +103,22 @@ NdefMessage& NdefMessage::operator=(const NdefMessage& rhs)
     {
 
         // delete existing records
-        for (unsigned int i = 0; i < _recordCount; i++)
+        for (uint8_t i = 0; i < _recordCount; i++)
         {
-            // TODO Dave: is this the right way to delete existing records?
-            _records[i] = NdefRecord();
+            delete(_records[i]);
+            _records[i] = (NdefRecord*)NULL;
         }
 
-        _recordCount = rhs._recordCount;
+        _recordCount = 0;
         for (unsigned int i = 0; i < _recordCount; i++)
         {
-            _records[i] = rhs._records[i];
+            addRecord(*(rhs._records[i]));
         }
     }
     return *this;
 }
 
-unsigned int NdefMessage::getRecordCount()
+uint8_t NdefMessage::getRecordCount()
 {
     return _recordCount;
 }
@@ -126,7 +128,7 @@ unsigned int NdefMessage::getEncodedSize()
     unsigned int size = 0;
     for (unsigned int i = 0; i < _recordCount; i++)
     {
-        size += _records[i].getEncodedSize();
+        size += _records[i]->getEncodedSize();
     }
     return size;
 }
@@ -139,19 +141,19 @@ void NdefMessage::encode(uint8_t* data)
 
     for (unsigned int i = 0; i < _recordCount; i++)
     {
-        _records[i].encode(data_ptr, i == 0, (i + 1) == _recordCount);
+        _records[i]->encode(data_ptr, i == 0, (i + 1) == _recordCount);
         // TODO can NdefRecord.encode return the record size?
-        data_ptr += _records[i].getEncodedSize();
+        data_ptr += _records[i]->getEncodedSize();
     }
 
 }
 
-bool NdefMessage::addRecord(NdefRecord& record)
+bool NdefMessage::addRecord(NdefRecord &record)
 {
 
     if (_recordCount < MAX_NDEF_RECORDS)
     {
-        _records[_recordCount] = record;
+        _records[_recordCount] = new NdefRecord(record);
         _recordCount++;
         return true;
     }
@@ -243,11 +245,11 @@ void NdefMessage::addEmptyRecord()
     addRecord(r);
 }
 
-NdefRecord NdefMessage::getRecord(unsigned int index)
+NdefRecord NdefMessage::getRecord(uint8_t index)
 {
     if (index < _recordCount)
     {
-        return _records[index];
+        return *(_records[index]);
     }
     else
     {
@@ -255,7 +257,7 @@ NdefRecord NdefMessage::getRecord(unsigned int index)
     }
 }
 
-NdefRecord NdefMessage::operator[](unsigned int index)
+NdefRecord NdefMessage::operator[](uint8_t index)
 {
     return getRecord(index);
 }
@@ -269,7 +271,7 @@ void NdefMessage::print()
 
     for (unsigned int i = 0; i < _recordCount; i++)
     {
-         _records[i].print();
+         _records[i]->print();
     }
 }
 #endif

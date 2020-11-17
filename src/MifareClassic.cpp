@@ -13,25 +13,27 @@ MifareClassic::~MifareClassic()
 NfcTag MifareClassic::read()
 {
     MFRC522::MIFARE_Key key = {{0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7}};
-    int currentBlock = 4;
     int messageStartIndex = 0;
     int messageLength = 0;
     byte dataSize = BLOCK_SIZE + 2;
     byte data[dataSize];
 
     // read first block to get message length
-    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfcShield->uid)) == MFRC522::STATUS_OK)
+    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(_nfcShield->uid)) == MFRC522::STATUS_OK)
     {
-        if(_nfcShield->MIFARE_Read(currentBlock, data, &dataSize) != MFRC522::STATUS_OK)
+        if(_nfcShield->MIFARE_Read(4, data, &dataSize) != MFRC522::STATUS_OK)
         {
 #ifdef NDEF_USE_SERIAL
-            Serial.print(F("Error. Failed read block "));Serial.println(currentBlock);
+            Serial.println(F("Error. Failed read block 4"));
 #endif
             return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
         }
 
-        if (!decodeTlv(data, messageLength, messageStartIndex))
+        if (!decodeTlv(data, &messageLength, &messageStartIndex))
         {
+#ifdef NDEF_USE_SERIAL
+            Serial.println(F("Error. Could not decode TLV"));
+#endif
             return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_UNKNOWN); // TODO should the error message go in NfcTag?
         }
     }
@@ -44,9 +46,11 @@ NfcTag MifareClassic::read()
         return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
     }
 
+    int currentBlock = 4;
     // this should be nested in the message length loop
     int index = 0;
-    int bufferSize = getBufferSize(messageLength);
+    // Add 2 to allow MFRC522 to add CRC
+    int bufferSize = getBufferSize(messageLength) + 2;
     uint8_t buffer[bufferSize];
 
     #ifdef MIFARE_CLASSIC_DEBUG
@@ -126,8 +130,7 @@ int MifareClassic::getBufferSize(int messageLength)
         bufferSize = ((bufferSize / BLOCK_SIZE) + 1) * BLOCK_SIZE;
     }
 
-    // Read data include 2 bytes of CRC
-    return bufferSize + 2;
+    return bufferSize;
 }
 
 // skip null tlvs (0x0) before the real message
@@ -166,7 +169,7 @@ int MifareClassic::getNdefStartIndex(byte *data)
 //
 // { 0x3, LENGTH }
 // { 0x3, 0xFF, LENGTH, LENGTH }
-bool MifareClassic::decodeTlv(byte *data, int &messageLength, int &messageStartIndex)
+bool MifareClassic::decodeTlv(byte *data, int *messageLength, int *messageStartIndex)
 {
     int i = getNdefStartIndex(data);
 
@@ -181,13 +184,13 @@ bool MifareClassic::decodeTlv(byte *data, int &messageLength, int &messageStartI
     {
         if (data[i+1] == 0xFF)
         {
-            messageLength = ((0xFF & data[i+2]) << 8) | (0xFF & data[i+3]);
-            messageStartIndex = i + LONG_TLV_SIZE;
+            *messageLength = ((0xFF & data[i+2]) << 8) | (0xFF & data[i+3]);
+            *messageStartIndex = i + LONG_TLV_SIZE;
         }
         else
         {
-            messageLength = data[i+1];
-            messageStartIndex = i + SHORT_TLV_SIZE;
+            *messageLength = data[i+1];
+            *messageStartIndex = i + SHORT_TLV_SIZE;
         }
     }
 
