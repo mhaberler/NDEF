@@ -5,7 +5,7 @@ NdefMessage::NdefMessage(void)
     _recordCount = 0;
 }
 
-NdefMessage::NdefMessage(const byte * data, const int numBytes)
+NdefMessage::NdefMessage(const byte * data, const uint16_t numBytes)
 {
 #ifdef NDEF_USE_SERIAL
     Serial.print(F("Decoding "));Serial.print(numBytes);Serial.println(F(" bytes"));
@@ -171,7 +171,7 @@ void NdefMessage::addMimeMediaRecord(const char *mimeType, const char *payload)
     addMimeMediaRecord(mimeType, (uint8_t *)payload, strlen(payload)+1);
 }
 
-void NdefMessage::addMimeMediaRecord(const char *mimeType, byte* payload, int payloadLength)
+void NdefMessage::addMimeMediaRecord(const char *mimeType, byte* payload, const uint16_t payloadLength)
 {
     NdefRecord r;
     r.setTnf(NdefRecord::TNF_MIME_MEDIA);
@@ -228,7 +228,7 @@ void NdefMessage::addUriRecord(const char *uri)
 }
 
 // Type shoulde be something like my.com:xx
-void NdefMessage::addExternalRecord(const char *type, const byte *payload, int payloadLength)
+void NdefMessage::addExternalRecord(const char *type, const byte *payload, const uint16_t payloadLength)
 {
 	NdefRecord r;
 	r.setTnf(NdefRecord::TNF_EXTERNAL_TYPE);

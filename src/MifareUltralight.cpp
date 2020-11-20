@@ -64,8 +64,7 @@ NfcTag MifareUltralight::read()
         index += ULTRALIGHT_READ_SIZE;
     }
 
-    NdefMessage ndefMessage = NdefMessage(&buffer[ndefStartIndex], messageLength);
-    return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2, ndefMessage);
+    return NfcTag(nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_2, &buffer[ndefStartIndex], messageLength);
 
 }
 

@@ -1,27 +1,21 @@
 #include <NfcTag.h>
 
-NfcTag::NfcTag()
-{
-    _uid = 0;
-    _uidLength = 0;
-    _tagType = NfcTag::TYPE_UNKNOWN;
-    _ndefMessage = (NdefMessage*)NULL;
-}
-
-NfcTag::NfcTag(byte *uid, uint8_t uidLength)
-{
-    _uid = uid;
-    _uidLength = uidLength;
-    _tagType = NfcTag::TYPE_UNKNOWN;
-    _ndefMessage = (NdefMessage*)NULL;
-}
-
 NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType)
 {
     _uid = uid;
     _uidLength = uidLength;
     _tagType = tagType;
     _ndefMessage = (NdefMessage*)NULL;
+    _isFormatted = false;
+}
+
+NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType, bool isFormatted)
+{
+    _uid = uid;
+    _uidLength = uidLength;
+    _tagType = tagType;
+    _ndefMessage = (NdefMessage*)NULL;
+    _isFormatted = isFormatted;
 }
 
 NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType, NdefMessage& ndefMessage)
@@ -30,15 +24,16 @@ NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType, NdefMessage& ndef
     _uidLength = uidLength;
     _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefMessage);
+    _isFormatted = true; // If it has a message it's formatted
 }
 
-// I don't like this version, but it will use less memory
-NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, const byte *ndefData, const int ndefDataLength)
+NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, const byte *ndefData, const uint16_t ndefDataLength)
 {
     _uid = uid;
     _uidLength = uidLength;
     _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefData, ndefDataLength);
+    _isFormatted = true; // If it has a message it's formatted
 }
 
 NfcTag::~NfcTag()
@@ -104,6 +99,11 @@ boolean NfcTag::hasNdefMessage()
 NdefMessage NfcTag::getNdefMessage()
 {
     return *_ndefMessage;
+}
+
+bool NfcTag::isFormatted()
+{
+    return _isFormatted;
 }
 #ifdef NDEF_USE_SERIAL
 

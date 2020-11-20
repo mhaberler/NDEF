@@ -42,8 +42,7 @@ NfcTag MifareClassic::read()
 #ifdef NDEF_USE_SERIAL
         Serial.println(F("Tag is not NDEF formatted."));
 #endif
-        // TODO set tag.isFormatted = false
-        return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC);
+        return NfcTag(_nfcShield->uid.uidByte, _nfcShield->uid.size, NfcTag::TYPE_MIFARE_CLASSIC, false);
     }
 
     int currentBlock = 4;
@@ -210,10 +209,10 @@ bool MifareClassic::formatNDEF()
     byte blockbuffer4[16] = {0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7, 0x7F, 0x07, 0x88, 0x40, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
     // TODO use UID from method parameters?
-    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 0, &keya, &(_nfcShield->uid)) != MFRC522::STATUS_OK)
+    if (_nfcShield->PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 1, &keya, &(_nfcShield->uid)) != MFRC522::STATUS_OK)
     {
 #ifdef NDEF_USE_SERIAL
-        Serial.println(F("Unable to authenticate block 0 to enable card formatting!"));
+        Serial.println(F("Unable to authenticate block 1 to enable card formatting!"));
 #endif
         return false;
     }
@@ -257,6 +256,7 @@ bool MifareClassic::formatNDEF()
 #ifdef NDEF_USE_SERIAL
                 Serial.print(F("Unable to write block "));Serial.println(i);
 #endif
+                return false;
             }
         }
         else
@@ -266,6 +266,7 @@ bool MifareClassic::formatNDEF()
 #ifdef NDEF_USE_SERIAL
                 Serial.print(F("Unable to write block "));Serial.println(i);
 #endif
+                return false;
             }
         }
         if (_nfcShield->MIFARE_Write(i+1, blockbuffer0, 16) != MFRC522::STATUS_OK)
@@ -273,18 +274,21 @@ bool MifareClassic::formatNDEF()
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Unable to write block "));Serial.println(i+1);
 #endif
+            return false;
         }
         if (_nfcShield->MIFARE_Write(i+2, blockbuffer0, 16) != MFRC522::STATUS_OK)
         {
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Unable to write block "));Serial.println(i+2);
 #endif
+            return false;
         }
         if (_nfcShield->MIFARE_Write(i+3, blockbuffer4, 16) != MFRC522::STATUS_OK)
         {
 #ifdef NDEF_USE_SERIAL
             Serial.print(F("Unable to write block "));Serial.println(i+3);
 #endif
+            return false;
         }
     }
     return true;

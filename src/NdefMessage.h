@@ -10,7 +10,7 @@ class NdefMessage
 {
     public:
         NdefMessage(void);
-        NdefMessage(const byte *data, const int numBytes);
+        NdefMessage(const byte *data, const uint16_t numBytes);
         NdefMessage(const NdefMessage& rhs);
         ~NdefMessage();
         NdefMessage& operator=(const NdefMessage& rhs);
@@ -20,11 +20,11 @@ class NdefMessage
 
         boolean addRecord(NdefRecord& record);
         void addMimeMediaRecord(const char *mimeType, const char *payload);
-        void addMimeMediaRecord(const char *mimeType, byte *payload, int payloadLength);
+        void addMimeMediaRecord(const char *mimeType, byte *payload, const uint16_t payloadLength);
         void addTextRecord(const char *text);
         void addTextRecord(const char *text, const char *encoding);
         void addUriRecord(const char *uri);
-        void addExternalRecord(const char *type, const byte *payload, int payloadLength);
+        void addExternalRecord(const char *type, const byte *payload, const uint16_t payloadLength);
         void addEmptyRecord();
 
         uint8_t getRecordCount();
