@@ -2,7 +2,7 @@
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define SS_PIN D8
+#define SS_PIN 8
 
 MFRC522 mfrc522(SS_PIN, UINT8_MAX); // Create MFRC522 instance
 
