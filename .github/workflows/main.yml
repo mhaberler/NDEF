@@ -39,7 +39,8 @@ jobs:
 
     - name: Run PlatformIO
       run: |
-        export PLATFORMIO_BUILD_FLAGS=-DNDEF_DEBUG
+        
         pio ci --lib="." --board=uno --board=nucleo_f767zi --board=nodemcuv2 --board=esp32dev --board=adafruit_feather_m4
       env:
+        PLATFORMIO_BUILD_FLAGS: -DNDEF_DEBUG
         PLATFORMIO_CI_SRC: ${{ matrix.example }}
