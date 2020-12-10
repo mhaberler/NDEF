@@ -38,6 +38,6 @@ jobs:
         pio lib -g install "miguelbalboa/MFRC522"
 
     - name: Run PlatformIO
-      run: pio ci --board=atmelavr --board=ststm32 --board=espressif8266 --board=espressif32 --board=samd
+      run: pio ci --board=uno --board=nucleo_f767zi --board=nodemcuv2 --board=esp32dev --board=adafruit_feather_m4
       env:
         PLATFORMIO_CI_SRC: ${{ matrix.example }}

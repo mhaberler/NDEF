@@ -28,5 +28,5 @@
     "miguelbalboa/MFRC522": "~1.4.7"
   },
   "frameworks": ["Arduino"],
-  "platforms": ["atmelavr", "ststm32", "espressif8266", "espressif32", "samd"]
+  "platforms": ["atmelavr", "ststm32", "espressif8266", "espressif32", "atmelsam"]
 }
