@@ -19,14 +19,18 @@ NfcTag	KEYWORD1
 #######################################
 
 addEmptyRecord	KEYWORD2
+addExternalRecord	KEYWORD2
 addMimeMediaRecord	KEYWORD2
 addRecord	KEYWORD2
 addTextRecord	KEYWORD2
 addUriRecord	KEYWORD2
 begin	KEYWORD2
+clean	KEYWORD2
 encode	KEYWORD2
 erase	KEYWORD2
 format	KEYWORD2
+formatNDEF	KEYWORD2
+formatMifare	KEYWORD2
 getEncodedSize	KEYWORD2
 getId	KEYWORD2
 getIdLength	KEYWORD2
@@ -42,7 +46,9 @@ getTypeLength	KEYWORD2
 getUid	KEYWORD2
 getUidLength	KEYWORD2
 getUidString	KEYWORD2
+haltTag	KEYWORD2
 hasNdefMessage	KEYWORD2
+isFormatted	KEYWORD2
 print	KEYWORD2
 read	KEYWORD2
 setId	KEYWORD2
