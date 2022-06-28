@@ -20,10 +20,18 @@ This code works with the cheap MFRC522 tag reader.
 
 To use the Ndef library in your code, include the following in your sketch:
 
+    #include <SPI.h>
     #include <MFRC522.h>
+    #include <NfcAdapter.h>
     
-    MFRC522 mfrc522(SS_PIN, UINT8_MAX);
-    MifareClassic ndef = MifareClassic(&mfrc522);
+    MFRC522 mfrc522(CS_PIN, UINT8_MAX);
+    NfcAdapter ndef = NfcAdapter(&mfrc522);
+
+    void setup() {
+        SPI.begin();        // Init SPI bus
+        mfrc522.PCD_Init(); // Init MFRC522
+        nfc.begin();
+    }
 
 ### NfcAdapter
 
@@ -87,17 +95,6 @@ A NdefRecord carries a payload and info about the payload within a NdefMessage.
 ### Specifications
 
 This code is based on the "NFC Data Exchange Format (NDEF) Technical Specification" and the "Record Type Definition Technical Specifications" that can be downloaded from the [NFC Forum](http://www.nfc-forum.org/specs/spec_license).
-
-### Tests
-
-To run the tests, you'll need [ArduinoUnit](https://github.com/mmurdoch/arduinounit). To "install", I clone the repo to my home directory and symlink the source into ~/Documents/Arduino/libraries/ArduinoUnit.
-
-    $ cd ~
-    $ git clone git@github.com:mmurdoch/arduinounit.git
-    $ cd ~/Documents/Arduino/libraries/
-    $ ln -s ~/arduinounit/src ArduinoUnit
-    
-Tests can be run on an Uno without a NFC shield, since the NDEF logic is what is being tested.
     
 ## Warning
 
