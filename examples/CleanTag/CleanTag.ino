@@ -6,31 +6,30 @@
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define SS_PIN 8
+#define CS_PIN 10
 
-MFRC522 mfrc522(SS_PIN, UINT8_MAX); // Create MFRC522 instance
+MFRC522 mfrc522(CS_PIN, UINT8_MAX); // Create MFRC522 instance
 
 NfcAdapter nfc = NfcAdapter(&mfrc522);
 
 void setup(void) {
     Serial.begin(9600);
-    Serial.println("NFC Tag Cleaner");
+    Serial.println("NFC Tag Cleaner\nPlace a tag on the NFC reader to clean back to factory state.");
+    SPI.begin();        // Init SPI bus
+    mfrc522.PCD_Init(); // Init MFRC522
     nfc.begin();
 }
 
 void loop(void) {
-
-    Serial.println("\nPlace a tag on the NFC reader to clean.");
-
     if (nfc.tagPresent()) {
-
+        Serial.println("Cleaning tag");
         bool success = nfc.clean();
         if (success) {
-            Serial.println("\nSuccess, tag restored to factory state.");
+            Serial.println("\tSuccess, tag restored to factory state.");
+            delay(10000);
         } else {
-            Serial.println("\nError, unable to clean tag.");
+            Serial.println("\tError, unable to clean tag.");
         }
-
     }
     delay(5000);
 }

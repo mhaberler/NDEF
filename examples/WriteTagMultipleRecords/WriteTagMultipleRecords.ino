@@ -1,32 +1,37 @@
+// Writes multiple records to an NFC formatted tag. Note this erases all existing records.
+
 #include <SPI.h>
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define SS_PIN 8
+#define CS_PIN 10
 
-MFRC522 mfrc522(SS_PIN, UINT8_MAX); // Create MFRC522 instance
+MFRC522 mfrc522(CS_PIN, UINT8_MAX); // Create MFRC522 instance
 
 NfcAdapter nfc = NfcAdapter(&mfrc522);
 
 void setup() {
     Serial.begin(9600);
-    Serial.println("NDEF Writer");
+    Serial.println("NDEF multiple record writer\nPlace a formatted Mifare Classic or Ultralight NFC tag on the reader.");
+    SPI.begin();        // Init SPI bus
+    mfrc522.PCD_Init(); // Init MFRC522
     nfc.begin();
 }
 
 void loop() {
-    Serial.println("\nPlace a formatted Mifare Classic NFC tag on the reader.");
     if (nfc.tagPresent()) {
+        Serial.println("Writing multiple records to NFC tag");
         NdefMessage message = NdefMessage();
         message.addTextRecord("Hello, Arduino!");
-        message.addUriRecord("http://arduino.cc");
+        message.addUriRecord("https://arduino.cc");
         message.addTextRecord("Goodbye, Arduino!");
         boolean success = nfc.write(message);
         if (success) {
-            Serial.println("Success. Try reading this tag with your phone.");
+            Serial.println("\tSuccess. Try reading this tag with your phone.");
+            delay(10000);
         } else {
-            Serial.println("Write failed");
+            Serial.println("\tWrite failed");
         }
     }
-    delay(3000);
+    delay(5000);
 }
