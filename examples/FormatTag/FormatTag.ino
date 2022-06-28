@@ -6,30 +6,30 @@
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define SS_PIN 8
+#define CS_PIN 10
 
-MFRC522 mfrc522(SS_PIN, UINT8_MAX); // Create MFRC522 instance
+MFRC522 mfrc522(CS_PIN, UINT8_MAX); // Create MFRC522 instance
 
 NfcAdapter nfc = NfcAdapter(&mfrc522);
 
 void setup(void) {
     Serial.begin(9600);
-    Serial.println("NDEF Formatter");
+    Serial.println("NDEF Formatter\nPlace an unformatted Mifare Classic tag on the reader.");
+    SPI.begin();        // Init SPI bus
+    mfrc522.PCD_Init(); // Init MFRC522
     nfc.begin();
 }
 
 void loop(void) {
-    
-    Serial.println("\nPlace an unformatted Mifare Classic tag on the reader.");
     if (nfc.tagPresent()) {
-
+        Serial.println("Formatting tag");
         bool success = nfc.format();
         if (success) {
-          Serial.println("\nSuccess, tag formatted as NDEF.");
+          Serial.println("\tSuccess, tag formatted as NDEF.");
+          delay(10000);
         } else {
-          Serial.println("\nFormat failed.");
+          Serial.println("\tFormat failed, card may already be formatted.");
         }
-
     }
     delay(5000);
 }

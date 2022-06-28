@@ -4,30 +4,30 @@
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define SS_PIN 8
+#define CS_PIN 10
 
-MFRC522 mfrc522(SS_PIN, UINT8_MAX); // Create MFRC522 instance
+MFRC522 mfrc522(CS_PIN, UINT8_MAX); // Create MFRC522 instance
 
 NfcAdapter nfc = NfcAdapter(&mfrc522);
 
 void setup(void) {
     Serial.begin(9600);
-    Serial.println("NFC Tag Eraser");
+    Serial.println("NFC Tag Eraser\nPlace a tag on the NFC reader to erase.");
+    SPI.begin();        // Init SPI bus
+    mfrc522.PCD_Init(); // Init MFRC522
     nfc.begin();
 }
 
 void loop(void) {
-    Serial.println("\nPlace a tag on the NFC reader to erase.");
-
     if (nfc.tagPresent()) {
-
+        Serial.println("Erasing tag");
         bool success = nfc.erase();
         if (success) {
-            Serial.println("\nSuccess, tag contains an empty record.");        
+            Serial.println("\tSuccess, tag contains an empty record.");        
+            delay(10000);
         } else {
-            Serial.println("\nUnable to erase tag.");
+            Serial.println("\tUnable to erase tag.");
         }
-
     }
     delay(5000);
 }
