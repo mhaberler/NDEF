@@ -5,13 +5,19 @@
 #include <MFRC522.h>
 #include "NfcAdapter.h"
 
-#define CS_PIN 10
+#define SS_PIN 5
 
-MFRC522 mfrc522(CS_PIN, UINT8_MAX); // Create MFRC522 instance
+// MFRC522 setup
+MFRC522DriverPinSimple ss_pin(SS_PIN); // Configurable, see typical pin layout above.
+
+MFRC522DriverSPI driver{ss_pin}; // Create SPI driver.
+
+MFRC522 mfrc522{driver}; // Create MFRC522 instance.
 
 NfcAdapter nfc = NfcAdapter(&mfrc522);
 
-void setup(void) {
+void setup(void)
+{
     Serial.begin(9600);
     Serial.println("NDEF Reader\nPlace an unformatted Mifare Classic tag on the reader to show contents.");
     SPI.begin();        // Init SPI bus
@@ -19,7 +25,8 @@ void setup(void) {
     nfc.begin();
 }
 
-void loop(void) {
+void loop(void)
+{
     if (nfc.tagPresent())
     {
         Serial.println("Reading NFC tag\n");

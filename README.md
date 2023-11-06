@@ -6,6 +6,8 @@ NFC Data Exchange Format (NDEF) is a common data format that operates across all
 
 This code works with the cheap MFRC522 tag reader.
 
+This is a fork of this [NDEF Library](https://github.com/TheNitek/NDEF), but with the more maintained [MFRC522 library](https://github.com/OSSLibraries/Arduino_MFRC522v2).
+
 ### Supports 
  - Reading from Mifare Classic Tags with 4 byte UIDs.
  - Writing to Mifare Classic Tags with 4 byte UIDs.
@@ -14,7 +16,7 @@ This code works with the cheap MFRC522 tag reader.
 
 ### Requires
 
-[MFRC522 Library](https://github.com/miguelbalboa/rfid)
+[MFRC522v2 Library](https://github.com/OSSLibraries/Arduino_MFRC522v2)
 
 ## Getting Started
 
@@ -100,12 +102,11 @@ This code is based on the "NFC Data Exchange Format (NDEF) Technical Specificati
 
 This software is in development. It works for the happy path. Error handling could use improvement. It runs out of memory, especially on the Uno board. Use small messages with the Uno. The Due board can write larger messages. Please submit patches.
 
-## Book
-Need more info? Check out my book <a href="http://www.anrdoezrs.net/click-7521423-11260198-1430755877000?url=http%3A%2F%2Fshop.oreilly.com%2Fproduct%2F0636920021193.do%3Fcmp%3Daf-prog-books-videos-product_cj_9781449372064_%2525zp&cjsku=0636920021193" target="_top">
-Beginning NFC: Near Field Communication with Arduino, Android, and PhoneGap</a><img src="http://www.lduhtrp.net/image-7521423-11260198-1430755877000" width="1" height="1" border="0"/>.
+### Known Issues
 
-<a href="http://www.tkqlhce.com/click-7521423-11260198-1430755877000?url=http%3A%2F%2Fshop.oreilly.com%2Fproduct%2F0636920021193.do%3Fcmp%3Daf-prog-books-videos-product_cj_9781449372064_%2525zp&cjsku=0636920021193" target="_top"><img src="http://akamaicovers.oreilly.com/images/0636920021193/cat.gif" border="0" alt="Beginning NFC"/></a><img src="http://www.awltovhc.com/image-7521423-11260198-1430755877000" width="1" height="1" border="0"/>
+ * I have experienced difficulties with `format()` using my MIFARE Classic tag and formatiing it to NDEF format. Any issues and leads on how to solve this is appreciated.
+
 
 ## License
 
-[BSD License](https://github.com/don/Ndef/blob/master/LICENSE.txt) (c) 2013-2014, Don Coleman
+[BSD License](https://github.com/IktaS/NDEF/blob/master/LICENSE.txt) (c) 2013-2014, Don Coleman

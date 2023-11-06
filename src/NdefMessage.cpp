@@ -5,10 +5,12 @@ NdefMessage::NdefMessage(void)
     _recordCount = 0;
 }
 
-NdefMessage::NdefMessage(const byte * data, const uint16_t numBytes)
+NdefMessage::NdefMessage(const byte *data, const uint16_t numBytes)
 {
 #ifdef NDEF_USE_SERIAL
-    Serial.print(F("Decoding "));Serial.print(numBytes);Serial.println(F(" bytes"));
+    Serial.print(F("Decoding "));
+    Serial.print(numBytes);
+    Serial.println(F(" bytes"));
     PrintHexChar(data, numBytes);
 #endif
 
@@ -44,10 +46,7 @@ NdefMessage::NdefMessage(const byte * data, const uint16_t numBytes)
         else
         {
             payloadLength =
-                  (static_cast<uint32_t>(data[index])   << 24)
-                | (static_cast<uint32_t>(data[index+1]) << 16)
-                | (static_cast<uint32_t>(data[index+2]) << 8)
-                |  static_cast<uint32_t>(data[index+3]);
+                (static_cast<uint32_t>(data[index]) << 24) | (static_cast<uint32_t>(data[index + 1]) << 16) | (static_cast<uint32_t>(data[index + 2]) << 8) | static_cast<uint32_t>(data[index + 3]);
             index += 4;
         }
 
@@ -74,12 +73,12 @@ NdefMessage::NdefMessage(const byte * data, const uint16_t numBytes)
         _records[_recordCount] = record;
         _recordCount++;
 
-        if (me) break; // last message
+        if (me)
+            break; // last message
     }
-
 }
 
-NdefMessage::NdefMessage(const NdefMessage& rhs)
+NdefMessage::NdefMessage(const NdefMessage &rhs)
 {
     _recordCount = 0;
     for (unsigned int i = 0; i < rhs._recordCount; i++)
@@ -92,11 +91,11 @@ NdefMessage::~NdefMessage()
 {
     for (int i = 0; i < _recordCount; i++)
     {
-        delete(_records[i]);
+        delete (_records[i]);
     }
 }
 
-NdefMessage& NdefMessage::operator=(const NdefMessage& rhs)
+NdefMessage &NdefMessage::operator=(const NdefMessage &rhs)
 {
 
     if (this != &rhs)
@@ -105,8 +104,8 @@ NdefMessage& NdefMessage::operator=(const NdefMessage& rhs)
         // delete existing records
         for (uint8_t i = 0; i < _recordCount; i++)
         {
-            delete(_records[i]);
-            _records[i] = (NdefRecord*)NULL;
+            delete (_records[i]);
+            _records[i] = (NdefRecord *)NULL;
         }
 
         _recordCount = 0;
@@ -134,10 +133,10 @@ unsigned int NdefMessage::getEncodedSize()
 }
 
 // TODO change this to return uint8_t*
-void NdefMessage::encode(uint8_t* data)
+void NdefMessage::encode(uint8_t *data)
 {
     // assert sizeof(data) >= getEncodedSize()
-    uint8_t* data_ptr = &data[0];
+    uint8_t *data_ptr = &data[0];
 
     for (unsigned int i = 0; i < _recordCount; i++)
     {
@@ -145,7 +144,6 @@ void NdefMessage::encode(uint8_t* data)
         // TODO can NdefRecord.encode return the record size?
         data_ptr += _records[i]->getEncodedSize();
     }
-
 }
 
 bool NdefMessage::addRecord(NdefRecord &record)
@@ -168,14 +166,14 @@ bool NdefMessage::addRecord(NdefRecord &record)
 
 void NdefMessage::addMimeMediaRecord(const char *mimeType, const char *payload)
 {
-    addMimeMediaRecord(mimeType, (uint8_t *)payload, strlen(payload)+1);
+    addMimeMediaRecord(mimeType, (uint8_t *)payload, strlen(payload) + 1);
 }
 
-void NdefMessage::addMimeMediaRecord(const char *mimeType, byte* payload, const uint16_t payloadLength)
+void NdefMessage::addMimeMediaRecord(const char *mimeType, byte *payload, const uint16_t payloadLength)
 {
     NdefRecord r;
     r.setTnf(NdefRecord::TNF_MIME_MEDIA);
-    r.setType((byte *)mimeType, strlen(mimeType)+1);
+    r.setType((byte *)mimeType, strlen(mimeType) + 1);
     r.setPayload(payload, payloadLength);
 
     addRecord(r);
@@ -194,7 +192,7 @@ void NdefMessage::addTextRecord(const char *text, const char *language)
 
     r.setTnf(NdefRecord::TNF_WELL_KNOWN);
 
-    uint8_t RTD_TEXT[] = { NdefRecord::RTD_TEXT };
+    uint8_t RTD_TEXT[] = {NdefRecord::RTD_TEXT};
     r.setType(RTD_TEXT, sizeof(RTD_TEXT));
 
     size_t languageLength = strlen(language);
@@ -203,9 +201,9 @@ void NdefMessage::addTextRecord(const char *text, const char *language)
     byte header[6];
     // This is the status byte, we always assume UTF-8 encoding here
     header[0] = languageLength;
-    memcpy(header+1, language, languageLength);
+    memcpy(header + 1, language, languageLength);
 
-    r.setPayload(header, languageLength+1, (byte *)text, strlen(text));
+    r.setPayload(header, languageLength + 1, (byte *)text, strlen(text));
 
     addRecord(r);
 }
@@ -215,7 +213,7 @@ void NdefMessage::addUriRecord(const char *uri)
     NdefRecord r;
     r.setTnf(NdefRecord::TNF_WELL_KNOWN);
 
-    uint8_t RTD_URI[] = { NdefRecord::RTD_URI };
+    uint8_t RTD_URI[] = {NdefRecord::RTD_URI};
     r.setType(RTD_URI, sizeof(RTD_URI));
 
     size_t uriLength = strlen(uri);
@@ -230,12 +228,12 @@ void NdefMessage::addUriRecord(const char *uri)
 // Type shoulde be something like my.com:xx
 void NdefMessage::addExternalRecord(const char *type, const byte *payload, const uint16_t payloadLength)
 {
-	NdefRecord r;
-	r.setTnf(NdefRecord::TNF_EXTERNAL_TYPE);
+    NdefRecord r;
+    r.setTnf(NdefRecord::TNF_EXTERNAL_TYPE);
 
-	r.setType((byte *)type, strlen(type));
+    r.setType((byte *)type, strlen(type));
     r.setPayload(payload, payloadLength);
-	addRecord(r);
+    addRecord(r);
 }
 
 void NdefMessage::addEmptyRecord()
@@ -265,13 +263,16 @@ NdefRecord NdefMessage::operator[](uint8_t index)
 #ifdef NDEF_USE_SERIAL
 void NdefMessage::print()
 {
-    Serial.print(F("\nNDEF Message "));Serial.print(_recordCount);Serial.print(F(" record"));
+    Serial.print(F("\nNDEF Message "));
+    Serial.print(_recordCount);
+    Serial.print(F(" record"));
     _recordCount == 1 ? Serial.print(", ") : Serial.print("s, ");
-    Serial.print(getEncodedSize());Serial.println(F(" bytes"));
+    Serial.print(getEncodedSize());
+    Serial.println(F(" bytes"));
 
     for (unsigned int i = 0; i < _recordCount; i++)
     {
-         _records[i]->print();
+        _records[i]->print();
     }
 }
 #endif

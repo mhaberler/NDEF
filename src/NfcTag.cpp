@@ -1,24 +1,24 @@
 #include <NfcTag.h>
 
-NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType)
+NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType)
 {
     _uid = uid;
     _uidLength = uidLength;
     _tagType = tagType;
-    _ndefMessage = (NdefMessage*)NULL;
+    _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = false;
 }
 
-NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType, bool isFormatted)
+NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, bool isFormatted)
 {
     _uid = uid;
     _uidLength = uidLength;
     _tagType = tagType;
-    _ndefMessage = (NdefMessage*)NULL;
+    _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = isFormatted;
 }
 
-NfcTag::NfcTag(byte *uid, uint8_t  uidLength, TagType tagType, NdefMessage& ndefMessage)
+NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, NdefMessage &ndefMessage)
 {
     _uid = uid;
     _uidLength = uidLength;
@@ -41,7 +41,7 @@ NfcTag::~NfcTag()
     delete _ndefMessage;
 }
 
-NfcTag& NfcTag::operator=(const NfcTag& rhs)
+NfcTag &NfcTag::operator=(const NfcTag &rhs)
 {
     if (this != &rhs)
     {
@@ -109,8 +109,10 @@ bool NfcTag::isFormatted()
 
 void NfcTag::print()
 {
-    Serial.print(F("NFC Tag - "));Serial.println(_tagType);
-    Serial.print(F("UID "));Serial.println(getUidString());
+    Serial.print(F("NFC Tag - "));
+    Serial.println(_tagType);
+    Serial.print(F("UID "));
+    Serial.println(getUidString());
     if (_ndefMessage == NULL)
     {
         Serial.println(F("\nNo NDEF Message"));
