@@ -47,7 +47,6 @@ Type4Tag::SelectNdefTag_Application ()
 {
     byte sendData[] = { 0x00, 0xA4, 0x04, 0x00, 0x07, 0xD2, 0x76,
                         0x00, 0x00, 0x85, 0x01, 0x01, 0x00 };
-    byte sendLen = sizeof (sendData);
     byte backData[2];
     byte backLen = 2;
 
