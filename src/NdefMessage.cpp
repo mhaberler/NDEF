@@ -38,16 +38,16 @@ NdefMessage::NdefMessage(const byte *data, const uint16_t numBytes)
         int typeLength = data[index];
 
         uint32_t payloadLength = 0;
+        index++;
         if (sr)
         {
-            index++;
             payloadLength = data[index];
         }
         else
         {
             payloadLength =
                 (static_cast<uint32_t>(data[index]) << 24) | (static_cast<uint32_t>(data[index + 1]) << 16) | (static_cast<uint32_t>(data[index + 2]) << 8) | static_cast<uint32_t>(data[index + 3]);
-            index += 4;
+            index += 3;
         }
 
         int idLength = 0;
