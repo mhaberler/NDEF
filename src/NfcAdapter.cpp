@@ -84,7 +84,7 @@ bool NfcAdapter::format()
 
 bool NfcAdapter::clean()
 {
-    NfcTag::PICC_Type type = guessTagType();
+    NfcTag::PICC_Type type = getTagType();
 
 #if NDEF_SUPPORT_MIFARE_CLASSIC
     if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
@@ -117,7 +117,7 @@ bool NfcAdapter::clean()
 
 NfcTag NfcAdapter::read()
 {
-    uint8_t type = guessTagType();
+    uint8_t type = getTagType();
 
 #if NDEF_SUPPORT_MIFARE_CLASSIC
     if (type == PICC_Type::PICC_TYPE_MIFARE_1K)
@@ -164,7 +164,7 @@ NfcTag NfcAdapter::read()
 
 bool NfcAdapter::write(NdefMessage& ndefMessage)
 {
-    PICC_Type type = guessTagType();
+    PICC_Type type = getTagType();
 
 #if NDEF_SUPPORT_MIFARE_CLASSIC
     if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
@@ -207,25 +207,7 @@ void NfcAdapter::haltTag() {
     shield->PCD_StopCrypto1();
 }
 
-MFRC522Constants::PICC_Type NfcAdapter::guessTagType()
+MFRC522Constants::PICC_Type NfcAdapter::getTagType()
 {
-
    return shield->PICC_GetType(shield->uid.sak);
-
-    // if (piccType == PICC_Type::PICC_TYPE_MIFARE_1K)
-    // {
-    //     return NfcTag::PICC_TYPE_MIFARE_1K; // FIXME
-    // } 
-    // else if (piccType == PICC_Type::PICC_TYPE_MIFARE_UL)
-    // {
-    //     return NfcTag::TYPE_2;
-    // }
-    // else if (piccType == PICC_Type::PICC_TYPE_ISO_14443_4)
-    // {
-    //     return NfcTag::TYPE_4;
-    // }
-    // else
-    // {
-    //     return NfcTag::TYPE_UNKNOWN;
-    // }
 }

@@ -32,7 +32,7 @@ class NfcAdapter {
         void haltTag();
     private:
         MFRC522Extended* shield;
-        PICC_Type guessTagType();
+        PICC_Type getTagType();
 };
 
 #endif
