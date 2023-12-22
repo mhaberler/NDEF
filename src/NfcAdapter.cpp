@@ -56,35 +56,39 @@ bool NfcAdapter::erase()
     return write(message);
 }
 
-bool NfcAdapter::format()
+bool
+NfcAdapter::format ()
 {
+    switch (shield->PICC_GetType (shield->uid.sak))
+        {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
-    if(shield->PICC_GetType(shield->uid.sak) == PICC_Type::PICC_TYPE_MIFARE_1K)
-    {
-        MifareClassic mifareClassic = MifareClassic(shield);
-        return mifareClassic.formatNDEF();
-    }
-    else
+        case PICC_Type::PICC_TYPE_MIFARE_MINI:
+        case PICC_Type::PICC_TYPE_MIFARE_1K:
+        case PICC_Type::PICC_TYPE_MIFARE_4K:
+            {
+                MifareClassic mifareClassic = MifareClassic (shield);
+                return mifareClassic.formatNDEF ();
+            }
 #endif
-    if(shield->PICC_GetType(shield->uid.sak) == PICC_Type::PICC_TYPE_MIFARE_UL)
-    {
+
+        case PICC_Type::PICC_TYPE_MIFARE_UL:
 #if NDEF_USE_SERIAL
-        Serial.print(F("No need for formating a UL"));
+            Serial.print (F ("No need for formating a UL"));
 #endif
-        return true;
-    }
-    else
-    {
+            return true;
+            break;
+
+        default:
 #if NDEF_USE_SERIAL
-        Serial.print(F("Unsupported Tag."));
+            Serial.print (F ("Unsupported Tag."));
 #endif
-        return false;
-    }
+            return false;
+        }
 }
 
-bool NfcAdapter::clean()
-{
-    NfcTag::PICC_Type type = getTagType();
+    bool NfcAdapter::clean ()
+    {
+        NfcTag::PICC_Type type = getTagType ();
 
 #if NDEF_SUPPORT_MIFARE_CLASSIC
     if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
