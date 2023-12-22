@@ -1,4 +1,5 @@
 #include <NfcTag.h>
+#include <MFRC522Debug.h>
 
 NfcTag::NfcTag(const Uid &uid, PICC_Type tagType)
 {
@@ -126,6 +127,7 @@ bool NfcTag::toJson(JsonDocument &doc)
     doc["uid"] = getUidString();
     doc["sak"] = _uid.sak;
     doc["type"] = _tagType;
+    doc["picc"] = MFRC522Debug::PICC_GetTypeName(_tagType);
   }
   if (hasNdefMessage())
   {
