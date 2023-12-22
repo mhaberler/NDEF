@@ -11,7 +11,7 @@ NdefMessage::NdefMessage(const byte *data, const uint16_t numBytes)
     Serial.print(F("Decoding "));
     Serial.print(numBytes);
     Serial.println(F(" bytes"));
-    PrintHexChar(data, numBytes);
+    HexDump(Serial, (void *)data, numBytes);
 #endif
 
     _recordCount = 0;
