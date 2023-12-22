@@ -276,3 +276,15 @@ void NdefMessage::print()
     }
 }
 #endif
+
+bool NdefMessage::toJson(JsonArray &records, bool detail)
+{
+  for (auto i = 0; i < _recordCount; i++)
+  {
+    NdefRecord nr = getRecord(i);
+    JsonObject jr = records.createNestedObject();
+    nr.toJson(jr);
+  }
+  return true;
+}
+
