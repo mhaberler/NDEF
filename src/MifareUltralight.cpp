@@ -2,7 +2,7 @@
 
 MifareUltralight::MifareUltralight(MFRC522 *nfcShield)
 {
-    nfc = nfcShield;
+    _nfc = nfcShield;
 }
 
 MifareUltralight::~MifareUltralight()
@@ -16,7 +16,7 @@ NfcTag MifareUltralight::read()
 #if NDEF_USE_SERIAL
         Serial.println(F("WARNING: Tag is not formatted."));
 #endif
-        return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
+        return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
     }
 
     uint16_t messageLength = 0;
@@ -29,7 +29,7 @@ NfcTag MifareUltralight::read()
     { // data is 0x44 0x03 0x00 0xFE
         NdefMessage message = NdefMessage();
         message.addEmptyRecord();
-        return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
+        return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
     }
 
     uint8_t index = 0;
@@ -38,7 +38,7 @@ NfcTag MifareUltralight::read()
     {
         // read the data
         byte dataSize = ULTRALIGHT_READ_SIZE + 2;
-        MFRC522::StatusCode status = nfc->MIFARE_Read(page, &buffer[index], &dataSize);
+        MFRC522::StatusCode status = _nfc->MIFARE_Read(page, &buffer[index], &dataSize);
         if (status == MFRC522Constants::STATUS_OK)
         {
 #if MIFARE_ULTRALIGHT_DEBUG
@@ -57,7 +57,7 @@ NfcTag MifareUltralight::read()
             Serial.print(F("Read failed "));
             Serial.println(page);
 #endif
-            return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
+            return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
         }
 
         if (index >= (messageLength + ndefStartIndex))
@@ -68,7 +68,7 @@ NfcTag MifareUltralight::read()
         index += ULTRALIGHT_READ_SIZE;
     }
 //FIXME
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
 }
 
 bool MifareUltralight::isUnformatted()
@@ -76,7 +76,7 @@ bool MifareUltralight::isUnformatted()
     uint8_t page = 4;
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
     byte data[dataSize];
-    MFRC522::StatusCode status = nfc->MIFARE_Read(page, data, &dataSize);
+    MFRC522::StatusCode status = _nfc->MIFARE_Read(page, data, &dataSize);
     if (status == MFRC522Constants::STATUS_OK && dataSize >= 4)
     {
         return (data[0] == 0xFF && data[1] == 0xFF && data[2] == 0xFF && data[3] == 0xFF);
@@ -97,7 +97,7 @@ uint16_t MifareUltralight::readTagSize()
     uint16_t tagCapacity = 0;
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
     byte data[ULTRALIGHT_PAGE_SIZE];
-    MFRC522::StatusCode status = nfc->MIFARE_Read(3, data, &dataSize);
+    MFRC522::StatusCode status = _nfc->MIFARE_Read(3, data, &dataSize);
     if (status == MFRC522Constants::STATUS_OK && dataSize >= 2)
     {
         // See AN1303 - different rules for Mifare Family byte2 = (additional data + 48)/8
@@ -120,7 +120,7 @@ void MifareUltralight::findNdefMessage(uint16_t *messageLength, uint16_t *ndefSt
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
     byte data[dataSize]; // 3 pages, but 4 + CRC are returned
 
-    if (nfc->MIFARE_Read(4, data, &dataSize) == MFRC522Constants::STATUS_OK)
+    if (_nfc->MIFARE_Read(4, data, &dataSize) == MFRC522Constants::STATUS_OK)
     {
 #ifdef MIFARE_ULTRALIGHT_DEBUG
         Serial.println(F("Pages 4-7"));
@@ -232,7 +232,7 @@ bool MifareUltralight::write(NdefMessage &m)
         byte writeBuffer[16] = {0};
         memcpy(writeBuffer, src, 4);
         // write page
-        if (nfc->MIFARE_Write(page, writeBuffer, 16) != MFRC522Constants::STATUS_OK)
+        if (_nfc->MIFARE_Write(page, writeBuffer, 16) != MFRC522Constants::STATUS_OK)
             return false;
 #ifdef MIFARE_ULTRALIGHT_DEBUG
         Serial.print(F("Wrote page "));
@@ -266,7 +266,7 @@ bool MifareUltralight::clean()
         Serial.print(F(" - "));
         PrintHex(data, ULTRALIGHT_PAGE_SIZE);
 #endif
-        if (nfc->MIFARE_Write(i, data, 16) != MFRC522Constants::STATUS_OK)
+        if (_nfc->MIFARE_Write(i, data, 16) != MFRC522Constants::STATUS_OK)
         {
             return false;
         }

@@ -14,6 +14,7 @@ class NfcTag
 public:
   using Uid = MFRC522Constants::Uid;
   using PICC_Type = MFRC522Constants::PICC_Type;
+  using StatusCode = MFRC522Constants::StatusCode;
 
   NfcTag(const Uid& uid, PICC_Type tagType);
   NfcTag(const Uid& uid, PICC_Type tagType, bool isFormatted);
@@ -29,13 +30,15 @@ public:
   NdefMessage getNdefMessage();
   bool isFormatted();
   bool toJson(JsonDocument &result);
+  StatusCode getStatus() { return _status; };
 
 #if NDEF_USE_SERIAL
   void print();
 #endif
 private:
   Uid _uid;
-  PICC_Type _tagType; // Mifare Classic, NFC Forum Type {1,2,3,4}, Unknown
+  PICC_Type _tagType;
+  StatusCode _status;
   NdefMessage *_ndefMessage;
   /**
    * if tag is not formatted it is most probably in HALTED state as soon as we realize that

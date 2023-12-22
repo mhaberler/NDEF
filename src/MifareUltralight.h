@@ -28,7 +28,7 @@ public:
     bool clean();
 
 private:
-    MFRC522 *nfc;
+    MFRC522 *_nfc;
     bool isUnformatted();
     uint16_t readTagSize();
     void findNdefMessage(uint16_t *messageLength, uint16_t *ndefStartIndex);

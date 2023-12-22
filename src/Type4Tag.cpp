@@ -1,45 +1,44 @@
 #include <MFRC522v2.h>
 #include <Type4Tag.h>
 
-Type4Tag::Type4Tag(MFRC522Extended *nfcShield) { nfc = nfcShield; }
+Type4Tag::Type4Tag(MFRC522Extended *nfcShield) { _nfc = nfcShield; }
 
 Type4Tag::~Type4Tag() {}
 
 NfcTag
 Type4Tag::read()
 {
-  StatusCode sc;
   uint16_t fileId, maxSize;
   uint8_t readAccess, writeAccess;
   uint16_t fileSize;
 
-  sc = SelectNdefTag_Application();
-  if (sc != StatusCode::STATUS_OK)
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  _status = SelectNdefTag_Application();
+  if (_status != StatusCode::STATUS_OK)
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 
-  sc = SelectCapabilityContainer();
-  if (sc != StatusCode::STATUS_OK)
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  _status = SelectCapabilityContainer();
+  if (_status != StatusCode::STATUS_OK)
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 
-  sc = readCCFile(fileId, maxSize, readAccess, writeAccess);
-  if (sc != StatusCode::STATUS_OK)
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  _status = readCCFile(fileId, maxSize, readAccess, writeAccess);
+  if (_status != StatusCode::STATUS_OK)
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 
-  sc = selectFile(fileId);
-  if (sc != StatusCode::STATUS_OK)
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  _status = selectFile(fileId);
+  if (_status != StatusCode::STATUS_OK)
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 
-  sc = readFileLength(fileSize);
-  if (sc != StatusCode::STATUS_OK)
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  _status = readFileLength(fileSize);
+  if (_status != StatusCode::STATUS_OK)
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   uint8_t buffer[maxSize];
-  sc = readFile(buffer, fileSize);
-  if (sc == StatusCode::STATUS_OK)
+  _status = readFile(buffer, fileSize);
+  if (_status == StatusCode::STATUS_OK)
   {
-    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4, buffer, fileSize);
+    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4, buffer, fileSize);
   }
-  return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
 }
 
 StatusCode
@@ -50,8 +49,8 @@ Type4Tag::SelectNdefTag_Application()
   byte backData[2];
   byte backLen = 2;
 
-  StatusCode statusCode = nfc->TCL_Transceive(
-      &nfc->tag, sendData, sizeof(sendData), backData, &backLen);
+  StatusCode statusCode = _nfc->TCL_Transceive(
+      &_nfc->tag, sendData, sizeof(sendData), backData, &backLen);
   if (statusCode != StatusCode::STATUS_OK)
     return statusCode;
   if (backLen < 2)
@@ -69,8 +68,8 @@ Type4Tag::SelectCapabilityContainer()
   byte backData[3] = {0};
   byte backLen = 3; // sizeof(backData);
 
-  StatusCode statusCode = nfc->TCL_Transceive(
-      &nfc->tag, sendData, sizeof(sendData), backData, &backLen);
+  StatusCode statusCode = _nfc->TCL_Transceive(
+      &_nfc->tag, sendData, sizeof(sendData), backData, &backLen);
   if (statusCode != StatusCode::STATUS_OK)
     return statusCode;
   if (backLen < 2)
@@ -89,8 +88,8 @@ Type4Tag::readCCFile(uint16_t &fileId, uint16_t &maxSize, uint8_t &readAccess,
   uint8_t response[17];
   uint8_t responseLen = sizeof(response);
 
-  StatusCode statusCode = nfc->TCL_Transceive(
-      &nfc->tag, readCmd, sizeof(readCmd), response, &responseLen);
+  StatusCode statusCode = _nfc->TCL_Transceive(
+      &_nfc->tag, readCmd, sizeof(readCmd), response, &responseLen);
   if (statusCode != StatusCode::STATUS_OK)
     return statusCode;
   if (responseLen < 2)
@@ -112,8 +111,8 @@ Type4Tag::selectFile(const uint16_t fileId)
   uint8_t response[3];
   uint8_t responseLen = sizeof(response);
 
-  StatusCode statusCode = nfc->TCL_Transceive(
-      &nfc->tag, selectCmd, sizeof(selectCmd), response, &responseLen);
+  StatusCode statusCode = _nfc->TCL_Transceive(
+      &_nfc->tag, selectCmd, sizeof(selectCmd), response, &responseLen);
   if (statusCode != StatusCode::STATUS_OK)
     return statusCode;
   if (responseLen < 2)
@@ -131,7 +130,7 @@ Type4Tag::readFileLength(uint16_t &fileSize)
   uint8_t response[5];
   uint8_t responseLen = sizeof(response);
 
-  StatusCode statusCode = nfc->TCL_Transceive(&nfc->tag, cmd, sizeof(cmd),
+  StatusCode statusCode = _nfc->TCL_Transceive(&_nfc->tag, cmd, sizeof(cmd),
                                               response, &responseLen);
   if (statusCode != StatusCode::STATUS_OK)
     return statusCode;
@@ -161,7 +160,7 @@ Type4Tag::readFile(uint8_t *response, const size_t fileLength)
     uint8_t readCmd[5] = {0x00, 0xB0, (readstart >> 8) & 0xff,
                           readstart & 0xff, read_len};
     responseLen = fileLength;
-    statusCode = nfc->TCL_Transceive(&nfc->tag, readCmd, sizeof(readCmd),
+    statusCode = _nfc->TCL_Transceive(&_nfc->tag, readCmd, sizeof(readCmd),
                                      buffer, &responseLen);
     success = (statusCode == StatusCode::STATUS_OK);
     if (success)

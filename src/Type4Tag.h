@@ -14,12 +14,14 @@ class Type4Tag
     using StatusCode = MFRC522Constants::StatusCode;
     using PICC_Type = MFRC522Constants::PICC_Type;
 
-    Type4Tag (MFRC522Extended *nfcShield);
+    Type4Tag (MFRC522Extended *nfcShield) ;
     ~Type4Tag ();
     NfcTag read ();
+    StatusCode getStatus() { return _status; };
 
   private:
-    MFRC522Extended *nfc;
+    MFRC522Extended *_nfc;
+    StatusCode _status;
     StatusCode SelectNdefTag_Application ();
     StatusCode SelectCapabilityContainer ();
     StatusCode readCCFile (uint16_t &fileId, uint16_t &maxSize,
