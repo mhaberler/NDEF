@@ -1,37 +1,33 @@
 #include <NfcTag.h>
 
-NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType)
+NfcTag::NfcTag(const Uid &uid, TagType tagType)
 {
     _uid = uid;
-    _uidLength = uidLength;
-    _tagType = tagType;
+        _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = false;
 }
 
-NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, bool isFormatted)
+NfcTag::NfcTag(const Uid &uid, TagType tagType, bool isFormatted)
 {
     _uid = uid;
-    _uidLength = uidLength;
-    _tagType = tagType;
+        _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = isFormatted;
 }
 
-NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, NdefMessage &ndefMessage)
+NfcTag::NfcTag(const Uid &uid, TagType tagType, NdefMessage &ndefMessage)
 {
     _uid = uid;
-    _uidLength = uidLength;
-    _tagType = tagType;
+        _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefMessage);
     _isFormatted = true; // If it has a message it's formatted
 }
 
-NfcTag::NfcTag(byte *uid, uint8_t uidLength, TagType tagType, const byte *ndefData, const uint16_t ndefDataLength)
+NfcTag::NfcTag(const Uid &uid, TagType tagType, const byte *ndefData, const uint16_t ndefDataLength)
 {
     _uid = uid;
-    _uidLength = uidLength;
-    _tagType = tagType;
+        _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefData, ndefDataLength);
     _isFormatted = true; // If it has a message it's formatted
 }
@@ -47,40 +43,38 @@ NfcTag &NfcTag::operator=(const NfcTag &rhs)
     {
         delete _ndefMessage;
         _uid = rhs._uid;
-        _uidLength = rhs._uidLength;
-        _tagType = rhs._tagType;
-        _ndefMessage = new NdefMessage(*rhs._ndefMessage);
+                _ndefMessage = new NdefMessage(*rhs._ndefMessage);
     }
     return *this;
 }
 
 uint8_t NfcTag::getUidLength()
 {
-    return _uidLength;
+    return _uid.size;
 }
 
 void NfcTag::getUid(byte *uid, uint8_t *uidLength)
 {
-    memcpy(uid, _uid, _uidLength < *uidLength ? _uidLength : *uidLength);
-    *uidLength = _uidLength;
+    memcpy(uid, _uid.uidByte, _uid.size < *uidLength ? _uid.size : *uidLength);
+    *uidLength = _uid.size;
 }
 
 String NfcTag::getUidString()
 {
     String uidString = "";
-    for (unsigned int i = 0; i < _uidLength; i++)
+    for (unsigned int i = 0; i < _uid.size; i++)
     {
         if (i > 0)
         {
             uidString += " ";
         }
 
-        if (_uid[i] < 0xF)
+        if (_uid.uidByte[i] < 0xF)
         {
             uidString += "0";
         }
 
-        uidString += String((unsigned int)_uid[i], (unsigned char)HEX);
+        uidString += String((unsigned int)_uid.uidByte[i], (unsigned char)HEX);
     }
     uidString.toUpperCase();
     return uidString;
@@ -123,3 +117,19 @@ void NfcTag::print()
     }
 }
 #endif
+
+bool NfcTag::toJson(JsonDocument &doc)
+{
+  if (getUidLength())
+  {
+    doc["uid"] = getUidString();
+    doc["sak"] = _uid.sak;
+    doc["type"] = _tagType;
+  }
+  if (hasNdefMessage())
+  {
+    JsonArray ndef = doc.createNestedArray("ndef");
+    getNdefMessage().toJson(ndef);
+  }
+  return true;
+}

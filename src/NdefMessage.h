@@ -3,6 +3,8 @@
 
 #include <Ndef.h>
 #include <NdefRecord.h>
+#include <ArduinoJson.h>
+#include <HexDump.h>
 
 #define MAX_NDEF_RECORDS 4
 
@@ -26,6 +28,8 @@ public:
     void addUriRecord(const char *uri);
     void addExternalRecord(const char *type, const byte *payload, const uint16_t payloadLength);
     void addEmptyRecord();
+
+  bool toJson(JsonArray &result, bool detail = true);
 
     uint8_t getRecordCount();
     NdefRecord getRecord(uint8_t index);

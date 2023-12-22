@@ -35,11 +35,11 @@ Type4Tag::read ()
         {
             NdefMessage msg (buffer, fileSize);
             free (buffer);
-            return NfcTag (nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_4,
+            return NfcTag (nfc->uid, NfcTag::TYPE_4,
                            msg);
         }
 fail:
-    return NfcTag (nfc->uid.uidByte, nfc->uid.size, NfcTag::TYPE_4);
+    return NfcTag (nfc->uid, NfcTag::TYPE_4);
 }
 
 StatusCode
