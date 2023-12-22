@@ -33,7 +33,7 @@ void loop()
         message.addTextRecord("Hello, Arduino!");
         message.addUriRecord("https://arduino.cc");
         message.addTextRecord("Goodbye, Arduino!");
-        boolean success = nfc.write(message);
+        bool success = nfc.write(message);
         if (success)
         {
             Serial.println("\tSuccess. Try reading this tag with your phone.");

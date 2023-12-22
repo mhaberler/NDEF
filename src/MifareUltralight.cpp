@@ -71,7 +71,7 @@ NfcTag MifareUltralight::read()
     return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
 }
 
-boolean MifareUltralight::isUnformatted()
+bool MifareUltralight::isUnformatted()
 {
     uint8_t page = 4;
     byte dataSize = ULTRALIGHT_READ_SIZE + 2;
@@ -170,7 +170,7 @@ uint16_t MifareUltralight::calculateBufferSize(uint16_t messageLength, uint16_t 
     return bufferSize;
 }
 
-boolean MifareUltralight::write(NdefMessage &m)
+bool MifareUltralight::write(NdefMessage &m)
 {
     if (isUnformatted())
     {
@@ -249,7 +249,7 @@ boolean MifareUltralight::write(NdefMessage &m)
 
 // Mifare Ultralight can't be reset to factory state
 // zero out tag data like the NXP Tag Write Android application
-boolean MifareUltralight::clean()
+bool MifareUltralight::clean()
 {
     uint16_t tagCapacity = readTagSize();
 

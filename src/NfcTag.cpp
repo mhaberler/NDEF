@@ -85,7 +85,7 @@ MFRC522Constants::PICC_Type NfcTag::getTagType()
     return _tagType;
 }
 
-boolean NfcTag::hasNdefMessage()
+bool NfcTag::hasNdefMessage()
 {
     return (_ndefMessage != NULL);
 }
