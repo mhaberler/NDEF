@@ -7,6 +7,7 @@
 #include <ArduinoJson.h>
 #include <NdefMessage.h>
 #include <MFRC522Constants.h>
+#include <MFRC522Extended.h>
 
 class NfcTag
 {
@@ -15,11 +16,12 @@ public:
   using Uid = MFRC522Constants::Uid;
   using PICC_Type = MFRC522Constants::PICC_Type;
   using StatusCode = MFRC522Constants::StatusCode;
+  using TagInfo = MFRC522Extended::TagInfo;
 
-  NfcTag(const Uid& uid, PICC_Type tagType);
-  NfcTag(const Uid& uid, PICC_Type tagType, bool isFormatted);
-  NfcTag(const Uid& uid, PICC_Type tagType, NdefMessage &ndefMessage);
-  NfcTag(const Uid& uid, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength);
+  NfcTag(const TagInfo& tag, PICC_Type tagType);
+  NfcTag(const TagInfo& tag, PICC_Type tagType, bool isFormatted);
+  NfcTag(const TagInfo& tag, PICC_Type tagType, NdefMessage &ndefMessage);
+  NfcTag(const TagInfo& tag, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength);
   ~NfcTag(void);
   NfcTag &operator=(const NfcTag &rhs);
   uint8_t getUidLength();
@@ -36,7 +38,7 @@ public:
   void print();
 #endif
 private:
-  Uid _uid;
+  TagInfo _taginfo;
   PICC_Type _tagType;
   StatusCode _status;
   NdefMessage *_ndefMessage;

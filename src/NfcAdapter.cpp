@@ -31,7 +31,7 @@ NfcAdapter::tagPresent ()
             return false;
         }
 
-    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (&shield->tag);
     switch (piccType)
         {
         case PICC_Type::PICC_TYPE_ISO_14443_4:
@@ -43,6 +43,7 @@ NfcAdapter::tagPresent ()
         case PICC_Type::PICC_TYPE_MIFARE_PLUS:
         case PICC_Type::PICC_TYPE_MIFARE_DESFIRE:
         case PICC_Type::PICC_TYPE_TNP3XXX:
+        case PICC_Type::PICC_TYPE_NTAG424DNA:
             return true;
         default: // PICC_TYPE_UNKNOWN, PICC_TYPE_NOT_COMPLETE
             return false;
@@ -59,7 +60,7 @@ bool NfcAdapter::erase()
 bool
 NfcAdapter::format ()
 {
-    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (&shield->tag);
     switch (piccType)
         {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
@@ -84,7 +85,7 @@ NfcAdapter::format ()
 bool
 NfcAdapter::clean ()
 {
-    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (&shield->tag);
     switch (piccType)
         {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
@@ -111,7 +112,7 @@ NfcAdapter::clean ()
 NfcTag
 NfcAdapter::read ()
 {
-    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    MFRC522::PICC_Type piccType = shield->PICC_GetType(&shield->tag);
     switch (piccType)
         {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
@@ -136,13 +137,13 @@ NfcAdapter::read ()
             }
             break;
         default:
-            return NfcTag(shield->uid, PICC_Type::PICC_TYPE_UNKNOWN);
+            return NfcTag(shield->tag, piccType);
         }
 }
 
 bool NfcAdapter::write(NdefMessage& ndefMessage)
 {
-    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (&shield->tag);
     switch (piccType)
         {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
@@ -182,5 +183,5 @@ void NfcAdapter::haltTag() {
 
 MFRC522Constants::PICC_Type NfcAdapter::getTagType()
 {
-   return shield->PICC_GetType(shield->uid.sak);
+   return shield->PICC_GetType(&shield->tag);
 }

@@ -11,34 +11,34 @@ Type4Tag::read()
   uint16_t fileId, maxSize;
   uint8_t readAccess, writeAccess;
   uint16_t fileSize;
-
+  
   _status = SelectNdefTag_Application();
   if (_status != StatusCode::STATUS_OK)
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   _status = SelectCapabilityContainer();
   if (_status != StatusCode::STATUS_OK)
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   _status = readCCFile(fileId, maxSize, readAccess, writeAccess);
   if (_status != StatusCode::STATUS_OK)
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   _status = selectFile(fileId);
   if (_status != StatusCode::STATUS_OK)
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   _status = readFileLength(fileSize);
   if (_status != StatusCode::STATUS_OK)
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 
   uint8_t buffer[maxSize];
   _status = readFile(buffer, fileSize);
   if (_status == StatusCode::STATUS_OK)
   {
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4, buffer, fileSize);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4, buffer, fileSize);
   }
-  return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_ISO_14443_4);
+  return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_ISO_14443_4);
 }
 
 StatusCode

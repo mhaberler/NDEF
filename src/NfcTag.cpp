@@ -1,33 +1,33 @@
 #include <NfcTag.h>
 #include <MFRC522Debug.h>
 
-NfcTag::NfcTag(const Uid &uid, PICC_Type tagType)
+NfcTag::NfcTag(const TagInfo& tag, PICC_Type tagType)
 {
-    _uid = uid;
+    _taginfo = tag;
     _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = false;
 }
 
-NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, bool isFormatted)
+NfcTag::NfcTag(const TagInfo& tag, PICC_Type tagType, bool isFormatted)
 {
-    _uid = uid;
+    _taginfo = tag;
     _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = isFormatted;
 }
 
-NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, NdefMessage &ndefMessage)
+NfcTag::NfcTag(const TagInfo& tag, PICC_Type tagType, NdefMessage &ndefMessage)
 {
-    _uid = uid;
+    _taginfo = tag;
     _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefMessage);
     _isFormatted = true; // If it has a message it's formatted
 }
 
-NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength)
+NfcTag::NfcTag(const TagInfo& tag, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength)
 {
-    _uid = uid;
+    _taginfo = tag;
     _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefData, ndefDataLength);
     _isFormatted = true; // If it has a message it's formatted
@@ -43,7 +43,7 @@ NfcTag &NfcTag::operator=(const NfcTag &rhs)
     if (this != &rhs)
     {
         delete _ndefMessage;
-        _uid = rhs._uid;
+        _taginfo = rhs._taginfo;
         _ndefMessage = new NdefMessage(*rhs._ndefMessage);
     }
     return *this;
@@ -51,31 +51,31 @@ NfcTag &NfcTag::operator=(const NfcTag &rhs)
 
 uint8_t NfcTag::getUidLength()
 {
-    return _uid.size;
+    return _taginfo.uid.size;
 }
 
 void NfcTag::getUid(byte *uid, uint8_t *uidLength)
 {
-    memcpy(uid, _uid.uidByte, _uid.size < *uidLength ? _uid.size : *uidLength);
-    *uidLength = _uid.size;
+    memcpy(uid, _taginfo.uid.uidByte, _taginfo.uid.size < *uidLength ? _taginfo.uid.size : *uidLength);
+    *uidLength = _taginfo.uid.size;
 }
 
 String NfcTag::getUidString()
 {
     String uidString = "";
-    for (unsigned int i = 0; i < _uid.size; i++)
+    for (unsigned int i = 0; i < _taginfo.uid.size; i++)
     {
         if (i > 0)
         {
             uidString += " ";
         }
 
-        if (_uid.uidByte[i] < 0xF)
+        if (_taginfo.uid.uidByte[i] < 0xF)
         {
             uidString += "0";
         }
 
-        uidString += String((unsigned int)_uid.uidByte[i], (unsigned char)HEX);
+        uidString += String((unsigned int)_taginfo.uid.uidByte[i], (unsigned char)HEX);
     }
     uidString.toUpperCase();
     return uidString;
@@ -125,7 +125,8 @@ bool NfcTag::toJson(JsonDocument &doc)
   if (getUidLength())
   {
     doc["uid"] = getUidString();
-    doc["sak"] = _uid.sak;
+    doc["sak"] = _taginfo.uid.sak;
+    doc["atqa"] = _taginfo.atqa;
     doc["type"] = _tagType;
     doc["picc"] = MFRC522Debug::PICC_GetTypeName(_tagType);
   }

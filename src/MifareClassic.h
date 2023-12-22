@@ -13,6 +13,7 @@
 #include <Due.h>
 #include <MFRC522v2.h>
 #include <MFRC522Debug.h>
+#include <MFRC522Extended.h>
 #include <Ndef.h>
 #include <NfcTag.h>
 
@@ -22,7 +23,7 @@ public:
     using StatusCode = MFRC522Constants::StatusCode;
     using PICC_Type = MFRC522Constants::PICC_Type;
 
-    MifareClassic(MFRC522 *nfcShield);
+    MifareClassic(MFRC522Extended *nfcShield);
     ~MifareClassic();
     NfcTag read();
     bool write(NdefMessage &ndefMessage);
@@ -30,7 +31,9 @@ public:
     bool formatMifare();
 
 private:
-    MFRC522 *_nfcShield;
+    using TagInfo = MFRC522Extended::TagInfo;
+
+    MFRC522Extended *_nfc;
     int getBufferSize(int messageLength);
     int getNdefStartIndex(byte *data);
     bool decodeTlv(byte *data, int *messageLength, int *messageStartIndex);

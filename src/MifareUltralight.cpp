@@ -1,6 +1,6 @@
 #include <MifareUltralight.h>
 
-MifareUltralight::MifareUltralight(MFRC522 *nfcShield)
+MifareUltralight::MifareUltralight(MFRC522Extended *nfcShield)
 {
     _nfc = nfcShield;
 }
@@ -16,7 +16,7 @@ NfcTag MifareUltralight::read()
 #if NDEF_USE_SERIAL
         Serial.println(F("WARNING: Tag is not formatted."));
 #endif
-        return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
+        return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
     }
 
     uint16_t messageLength = 0;
@@ -29,7 +29,7 @@ NfcTag MifareUltralight::read()
     { // data is 0x44 0x03 0x00 0xFE
         NdefMessage message = NdefMessage();
         message.addEmptyRecord();
-        return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
+        return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
     }
 
     uint8_t index = 0;
@@ -57,7 +57,7 @@ NfcTag MifareUltralight::read()
             Serial.print(F("Read failed "));
             Serial.println(page);
 #endif
-            return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
+            return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
         }
 
         if (index >= (messageLength + ndefStartIndex))
@@ -68,7 +68,7 @@ NfcTag MifareUltralight::read()
         index += ULTRALIGHT_READ_SIZE;
     }
 //FIXME
-    return NfcTag(_nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
+    return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
 }
 
 bool MifareUltralight::isUnformatted()

@@ -13,6 +13,7 @@ class Type4Tag
   public:
     using StatusCode = MFRC522Constants::StatusCode;
     using PICC_Type = MFRC522Constants::PICC_Type;
+    using TagInfo = MFRC522Extended::TagInfo;
 
     Type4Tag (MFRC522Extended *nfcShield) ;
     ~Type4Tag ();
