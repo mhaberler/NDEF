@@ -59,7 +59,8 @@ bool NfcAdapter::erase()
 bool
 NfcAdapter::format ()
 {
-    switch (shield->PICC_GetType (shield->uid.sak))
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    switch (piccType)
         {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
         case PICC_Type::PICC_TYPE_MIFARE_MINI:
@@ -81,42 +82,49 @@ NfcAdapter::format ()
         default:
 #if NDEF_USE_SERIAL
             Serial.print (F ("Unsupported Tag."));
+            Serial.println (piccType);
 #endif
             return false;
         }
 }
 
-    bool NfcAdapter::clean ()
-    {
-        NfcTag::PICC_Type type = getTagType ();
-
+bool
+NfcAdapter::clean ()
+{
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    switch (piccType)
+        {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
-    if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
-    {
-        #if NDEF_DEBUG
-        Serial.println(F("Cleaning Mifare Classic"));
-        #endif
-        MifareClassic mifareClassic = MifareClassic(shield);
-        return mifareClassic.formatMifare();
-    }
-    else
+        case PICC_Type::PICC_TYPE_MIFARE_MINI:
+        case PICC_Type::PICC_TYPE_MIFARE_1K:
+        case PICC_Type::PICC_TYPE_MIFARE_4K:
+            {
+#if NDEF_DEBUG
+                Serial.println (F ("Cleaning Mifare Classic"));
 #endif
-    if (type == PICC_Type::PICC_TYPE_MIFARE_UL) // FIXME
-    {
-        #if NDEF_DEBUG
-        Serial.println(F("Cleaning Mifare Ultralight"));
-        #endif
-        MifareUltralight ultralight = MifareUltralight(shield);
-        return ultralight.clean();
-    }
-    else
-    {
-#if NDEF_USE_SERIAL
-        Serial.print(F("No driver for card type "));Serial.println(type);
+                MifareClassic mifareClassic = MifareClassic (shield);
+                return mifareClassic.formatMifare ();
+            }
 #endif
-        return false;
-    }
 
+        case PICC_Type::PICC_TYPE_MIFARE_UL:
+            {
+
+#if NDEF_USE_SERIAL
+                Serial.println (F ("Cleaning Mifare Ultralight"));
+#endif
+                MifareUltralight ultralight = MifareUltralight (shield);
+                return ultralight.clean ();
+            }
+            break;
+
+        default:
+#if NDEF_USE_SERIAL
+            Serial.print (F ("No driver for card type "));
+            Serial.println (piccType);
+#endif
+            return false;
+        }
 }
 
 NfcTag NfcAdapter::read()
