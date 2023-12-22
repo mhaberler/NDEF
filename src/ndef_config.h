@@ -1,0 +1,15 @@
+#pragma once
+
+#if !defined(NDEF_SUPPORT_MIFARE_CLASSIC)
+#define NDEF_SUPPORT_MIFARE_CLASSIC 1
+#endif
+
+#if !defined(MIFARE_CLASSIC_DEBUG)
+#define MIFARE_CLASSIC_DEBUG 0
+#endif
+
+#if !defined(MIFARE_ULTRALIGHT_DEBUG)
+#define MIFARE_ULTRALIGHT_DEBUG 0
+#endif
+
+
