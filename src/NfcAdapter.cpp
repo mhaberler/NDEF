@@ -136,7 +136,6 @@ NfcTag NfcAdapter::read()
         #endif
         Type4Tag type4tag = Type4Tag(shield);
         return type4tag.read();
-        // return NfcTag(shield->uid.uidByte, shield->uid.size, NfcTag::TYPE_4);
     }
     else if (type == NfcTag::TYPE_UNKNOWN)
     {
