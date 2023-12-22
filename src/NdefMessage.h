@@ -35,7 +35,7 @@ public:
     NdefRecord getRecord(uint8_t index);
     NdefRecord operator[](uint8_t index);
 
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
     void print();
 #endif
 private:

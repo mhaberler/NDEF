@@ -13,10 +13,10 @@ NfcTag MifareUltralight::read()
 {
     if (isUnformatted())
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.println(F("WARNING: Tag is not formatted."));
 #endif
-        return NfcTag(nfc->uid, NfcTag::TYPE_2);
+        return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
     }
 
     uint16_t messageLength = 0;
@@ -29,7 +29,7 @@ NfcTag MifareUltralight::read()
     { // data is 0x44 0x03 0x00 0xFE
         NdefMessage message = NdefMessage();
         message.addEmptyRecord();
-        return NfcTag(nfc->uid, NfcTag::TYPE_2, message);
+        return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
     }
 
     uint8_t index = 0;
@@ -41,7 +41,7 @@ NfcTag MifareUltralight::read()
         MFRC522::StatusCode status = nfc->MIFARE_Read(page, &buffer[index], &dataSize);
         if (status == MFRC522Constants::STATUS_OK)
         {
-#ifdef MIFARE_ULTRALIGHT_DEBUG
+#if MIFARE_ULTRALIGHT_DEBUG
             Serial.print(F("Page "));
             Serial.print(page);
             Serial.print(" ");
@@ -53,11 +53,11 @@ NfcTag MifareUltralight::read()
         }
         else
         {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
             Serial.print(F("Read failed "));
             Serial.println(page);
 #endif
-            return NfcTag(nfc->uid, NfcTag::TYPE_2);
+            return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL); //FIXME
         }
 
         if (index >= (messageLength + ndefStartIndex))
@@ -67,8 +67,8 @@ NfcTag MifareUltralight::read()
 
         index += ULTRALIGHT_READ_SIZE;
     }
-
-    return NfcTag(nfc->uid, NfcTag::TYPE_2, &buffer[ndefStartIndex], messageLength);
+//FIXME
+    return NfcTag(nfc->uid, PICC_Type::PICC_TYPE_MIFARE_UL, &buffer[ndefStartIndex], messageLength);
 }
 
 boolean MifareUltralight::isUnformatted()
@@ -83,7 +83,7 @@ boolean MifareUltralight::isUnformatted()
     }
     else
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("Error. Failed read page "));
         Serial.println(page);
 #endif
@@ -174,7 +174,7 @@ boolean MifareUltralight::write(NdefMessage &m)
 {
     if (isUnformatted())
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.println(F("WARNING: Tag is not formatted."));
 #endif
         return false;

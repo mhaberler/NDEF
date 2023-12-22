@@ -7,7 +7,7 @@ NdefMessage::NdefMessage(void)
 
 NdefMessage::NdefMessage(const byte *data, const uint16_t numBytes)
 {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
     Serial.print(F("Decoding "));
     Serial.print(numBytes);
     Serial.println(F(" bytes"));
@@ -157,7 +157,7 @@ bool NdefMessage::addRecord(NdefRecord &record)
     }
     else
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.println(F("WARNING: Too many records. Increase MAX_NDEF_RECORDS."));
 #endif
         return false;
@@ -260,7 +260,7 @@ NdefRecord NdefMessage::operator[](uint8_t index)
     return getRecord(index);
 }
 
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
 void NdefMessage::print()
 {
     Serial.print(F("\nNDEF Message "));

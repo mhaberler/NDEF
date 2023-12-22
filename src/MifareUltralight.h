@@ -18,6 +18,9 @@
 class MifareUltralight
 {
 public:
+    using StatusCode = MFRC522Constants::StatusCode;
+    using PICC_Type = MFRC522Constants::PICC_Type;
+    
     MifareUltralight(MFRC522 *nfcShield);
     ~MifareUltralight();
     NfcTag read();

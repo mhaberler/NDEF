@@ -11,7 +11,7 @@ NfcAdapter::~NfcAdapter(void)
 
 void NfcAdapter::begin(bool verbose)
 {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
     if (verbose)
     {
         MFRC522Debug::PCD_DumpVersionToSerial(*shield, Serial);
@@ -49,7 +49,7 @@ bool NfcAdapter::erase()
 
 bool NfcAdapter::format()
 {
-#ifdef NDEF_SUPPORT_MIFARE_CLASSIC
+#if NDEF_SUPPORT_MIFARE_CLASSIC
     if(shield->PICC_GetType(shield->uid.sak) == PICC_Type::PICC_TYPE_MIFARE_1K)
     {
         MifareClassic mifareClassic = MifareClassic(shield);
@@ -59,14 +59,14 @@ bool NfcAdapter::format()
 #endif
     if(shield->PICC_GetType(shield->uid.sak) == PICC_Type::PICC_TYPE_MIFARE_UL)
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("No need for formating a UL"));
 #endif
         return true;
     }
     else
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("Unsupported Tag."));
 #endif
         return false;
@@ -75,12 +75,12 @@ bool NfcAdapter::format()
 
 bool NfcAdapter::clean()
 {
-    NfcTag::TagType type = guessTagType();
+    NfcTag::PICC_Type type = guessTagType();
 
-#ifdef NDEF_SUPPORT_MIFARE_CLASSIC
-    if (type == NfcTag::TYPE_MIFARE_CLASSIC)
+#if NDEF_SUPPORT_MIFARE_CLASSIC
+    if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Cleaning Mifare Classic"));
         #endif
         MifareClassic mifareClassic = MifareClassic(shield);
@@ -88,9 +88,9 @@ bool NfcAdapter::clean()
     }
     else
 #endif
-    if (type == NfcTag::TYPE_2)
+    if (type == PICC_Type::PICC_TYPE_MIFARE_UL) // FIXME
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Cleaning Mifare Ultralight"));
         #endif
         MifareUltralight ultralight = MifareUltralight(shield);
@@ -98,7 +98,7 @@ bool NfcAdapter::clean()
     }
     else
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("No driver for card type "));Serial.println(type);
 #endif
         return false;
@@ -110,10 +110,10 @@ NfcTag NfcAdapter::read()
 {
     uint8_t type = guessTagType();
 
-#ifdef NDEF_SUPPORT_MIFARE_CLASSIC
-    if (type == NfcTag::TYPE_MIFARE_CLASSIC)
+#if NDEF_SUPPORT_MIFARE_CLASSIC
+    if (type == PICC_Type::PICC_TYPE_MIFARE_1K)
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Reading Mifare Classic"));
         #endif
         MifareClassic mifareClassic = MifareClassic(shield);
@@ -121,46 +121,46 @@ NfcTag NfcAdapter::read()
     }
     else
 #endif
-    if (type == NfcTag::TYPE_2)
+    if (type == PICC_Type::PICC_TYPE_MIFARE_UL)
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Reading Mifare Ultralight"));
         #endif
         MifareUltralight ultralight = MifareUltralight(shield);
         return ultralight.read();
     }
-    else if (type == NfcTag::TYPE_4)
+    else if (type == PICC_Type::PICC_TYPE_ISO_14443_4)
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Reading Type4 tag"));
         #endif
         Type4Tag type4tag = Type4Tag(shield);
         return type4tag.read();
     }
-    else if (type == NfcTag::TYPE_UNKNOWN)
+    else if (type == PICC_Type::PICC_TYPE_UNKNOWN)
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("Can not determine tag type"));
 #endif
-        return NfcTag(shield->uid, NfcTag::TYPE_UNKNOWN);
+        return NfcTag(shield->uid, PICC_Type::PICC_TYPE_UNKNOWN);
     }
     else
     {
         // Serial.print(F("No driver for card type "));Serial.println(type);
         // TODO should set type here
-        return NfcTag(shield->uid, NfcTag::TYPE_UNKNOWN);
+        return NfcTag(shield->uid, PICC_Type::PICC_TYPE_UNKNOWN);
     }
 
 }
 
 bool NfcAdapter::write(NdefMessage& ndefMessage)
 {
-    uint8_t type = guessTagType();
+    PICC_Type type = guessTagType();
 
-#ifdef NDEF_SUPPORT_MIFARE_CLASSIC
-    if (type == NfcTag::TYPE_MIFARE_CLASSIC)
+#if NDEF_SUPPORT_MIFARE_CLASSIC
+    if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Writing Mifare Classic"));
         #endif
         MifareClassic mifareClassic = MifareClassic(shield);
@@ -168,24 +168,24 @@ bool NfcAdapter::write(NdefMessage& ndefMessage)
     }
     else
 #endif
-    if (type == NfcTag::TYPE_2)
+    if (type == PICC_Type::PICC_TYPE_MIFARE_UL)
     {
-        #ifdef NDEF_DEBUG
+        #if NDEF_DEBUG
         Serial.println(F("Writing Mifare Ultralight"));
         #endif
         MifareUltralight mifareUltralight = MifareUltralight(shield);
         return mifareUltralight.write(ndefMessage);
     }
-    else if (type == NfcTag::TYPE_UNKNOWN)
+    else if (type == PICC_Type::PICC_TYPE_UNKNOWN)
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("Can not determine tag type"));
 #endif
         return false;
     }
     else
     {
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
         Serial.print(F("No driver for card type "));Serial.println(type);
 #endif
         return false;
@@ -198,25 +198,25 @@ void NfcAdapter::haltTag() {
     shield->PCD_StopCrypto1();
 }
 
-NfcTag::TagType NfcAdapter::guessTagType()
+MFRC522Constants::PICC_Type NfcAdapter::guessTagType()
 {
 
-    MFRC522::PICC_Type piccType = shield->PICC_GetType(shield->uid.sak);
+   return shield->PICC_GetType(shield->uid.sak);
 
-    if (piccType == PICC_Type::PICC_TYPE_MIFARE_1K)
-    {
-        return NfcTag::TYPE_MIFARE_CLASSIC;
-    } 
-    else if (piccType == PICC_Type::PICC_TYPE_MIFARE_UL)
-    {
-        return NfcTag::TYPE_2;
-    }
-    else if (piccType == PICC_Type::PICC_TYPE_ISO_14443_4)
-    {
-        return NfcTag::TYPE_4;
-    }
-    else
-    {
-        return NfcTag::TYPE_UNKNOWN;
-    }
+    // if (piccType == PICC_Type::PICC_TYPE_MIFARE_1K)
+    // {
+    //     return NfcTag::PICC_TYPE_MIFARE_1K; // FIXME
+    // } 
+    // else if (piccType == PICC_Type::PICC_TYPE_MIFARE_UL)
+    // {
+    //     return NfcTag::TYPE_2;
+    // }
+    // else if (piccType == PICC_Type::PICC_TYPE_ISO_14443_4)
+    // {
+    //     return NfcTag::TYPE_4;
+    // }
+    // else
+    // {
+    //     return NfcTag::TYPE_UNKNOWN;
+    // }
 }

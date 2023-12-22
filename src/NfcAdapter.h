@@ -11,8 +11,6 @@
 #include <MifareUltralight.h>
 #include <Type4Tag.h>
 
-//#define NDEF_DEBUG 1
-
 class NfcAdapter {
     using StatusCode = MFRC522Constants::StatusCode;
     using PICC_Command = MFRC522Constants::PICC_Command;
@@ -34,7 +32,7 @@ class NfcAdapter {
         void haltTag();
     private:
         MFRC522Extended* shield;
-        NfcTag::TagType guessTagType();
+        PICC_Type guessTagType();
 };
 
 #endif

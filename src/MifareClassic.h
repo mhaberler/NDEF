@@ -1,12 +1,10 @@
 #ifndef MifareClassic_h
 #define MifareClassic_h
+#include <ndef_config.h>
 
-// Comment out next line to remove Mifare Classic and save memory
-#define NDEF_SUPPORT_MIFARE_CLASSIC
+#if NDEF_SUPPORT_MIFARE_CLASSIC
 
-#ifdef NDEF_SUPPORT_MIFARE_CLASSIC
 
-#define MIFARE_CLASSIC_DEBUG 1
 
 #define BLOCK_SIZE 16
 #define LONG_TLV_SIZE 4
@@ -21,6 +19,9 @@
 class MifareClassic
 {
 public:
+    using StatusCode = MFRC522Constants::StatusCode;
+    using PICC_Type = MFRC522Constants::PICC_Type;
+
     MifareClassic(MFRC522 *nfcShield);
     ~MifareClassic();
     NfcTag read();

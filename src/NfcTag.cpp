@@ -1,6 +1,6 @@
 #include <NfcTag.h>
 
-NfcTag::NfcTag(const Uid &uid, TagType tagType)
+NfcTag::NfcTag(const Uid &uid, PICC_Type tagType)
 {
     _uid = uid;
         _tagType = tagType;
@@ -8,7 +8,7 @@ NfcTag::NfcTag(const Uid &uid, TagType tagType)
     _isFormatted = false;
 }
 
-NfcTag::NfcTag(const Uid &uid, TagType tagType, bool isFormatted)
+NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, bool isFormatted)
 {
     _uid = uid;
         _tagType = tagType;
@@ -16,7 +16,7 @@ NfcTag::NfcTag(const Uid &uid, TagType tagType, bool isFormatted)
     _isFormatted = isFormatted;
 }
 
-NfcTag::NfcTag(const Uid &uid, TagType tagType, NdefMessage &ndefMessage)
+NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, NdefMessage &ndefMessage)
 {
     _uid = uid;
         _tagType = tagType;
@@ -24,7 +24,7 @@ NfcTag::NfcTag(const Uid &uid, TagType tagType, NdefMessage &ndefMessage)
     _isFormatted = true; // If it has a message it's formatted
 }
 
-NfcTag::NfcTag(const Uid &uid, TagType tagType, const byte *ndefData, const uint16_t ndefDataLength)
+NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength)
 {
     _uid = uid;
         _tagType = tagType;
@@ -80,7 +80,7 @@ String NfcTag::getUidString()
     return uidString;
 }
 
-NfcTag::TagType NfcTag::getTagType()
+MFRC522Constants::PICC_Type NfcTag::getTagType()
 {
     return _tagType;
 }
@@ -99,7 +99,8 @@ bool NfcTag::isFormatted()
 {
     return _isFormatted;
 }
-#ifdef NDEF_USE_SERIAL
+
+#if NDEF_USE_SERIAL
 
 void NfcTag::print()
 {

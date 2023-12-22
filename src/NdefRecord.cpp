@@ -376,7 +376,7 @@ bool NdefRecord::toJson(JsonObject &obj, bool detail)
   return true;
 }
 
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
 
 void NdefRecord::print()
 {

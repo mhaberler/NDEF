@@ -1,6 +1,6 @@
 #include "Ndef.h"
 
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
 // Borrowed from Adafruit_NFCShield_I2C
 void PrintHex(const byte *data, const long numBytes)
 {

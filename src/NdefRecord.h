@@ -92,7 +92,7 @@ public:
 
     static const char *getURIScheme(NdefRecord::URIScheme scheme);
 
-#ifdef NDEF_USE_SERIAL
+#if NDEF_USE_SERIAL
     void print();
 #endif
 private:
