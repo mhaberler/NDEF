@@ -142,41 +142,36 @@ NfcAdapter::read ()
 
 bool NfcAdapter::write(NdefMessage& ndefMessage)
 {
-    PICC_Type type = getTagType();
-
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    switch (piccType)
+        {
 #if NDEF_SUPPORT_MIFARE_CLASSIC
-    if (type == PICC_Type::PICC_TYPE_MIFARE_1K) // FIXME
-    {
-        #if NDEF_DEBUG
-        Serial.println(F("Writing Mifare Classic"));
-        #endif
-        MifareClassic mifareClassic = MifareClassic(shield);
-        return mifareClassic.write(ndefMessage);
-    }
-    else
+        case PICC_Type::PICC_TYPE_MIFARE_MINI:
+        case PICC_Type::PICC_TYPE_MIFARE_1K:
+        case PICC_Type::PICC_TYPE_MIFARE_4K:
+            {
+                MifareClassic mifareClassic = MifareClassic (shield);
+                return mifareClassic.write(ndefMessage);
+            }
 #endif
-    if (type == PICC_Type::PICC_TYPE_MIFARE_UL)
-    {
-        #if NDEF_DEBUG
-        Serial.println(F("Writing Mifare Ultralight"));
-        #endif
-        MifareUltralight mifareUltralight = MifareUltralight(shield);
-        return mifareUltralight.write(ndefMessage);
-    }
-    else if (type == PICC_Type::PICC_TYPE_UNKNOWN)
-    {
-#if NDEF_USE_SERIAL
-        Serial.print(F("Can not determine tag type"));
+        case PICC_Type::PICC_TYPE_MIFARE_UL:
+            {
+                MifareUltralight ultralight = MifareUltralight (shield);
+                return ultralight.write(ndefMessage);
+            }
+            break;
+#if NOT_YET
+        case PICC_Type::PICC_TYPE_ISO_14443_4:
+            {
+                Type4Tag type4tag = Type4Tag (shield);
+                return type4tag.write(ndefMessage); 
+            }
+            break;
 #endif
-        return false;
-    }
-    else
-    {
-#if NDEF_USE_SERIAL
-        Serial.print(F("No driver for card type "));Serial.println(type);
-#endif
-        return false;
-    }
+        default:
+            return false;
+        }
+
 }
 
 // Current tag will not be "visible" until removed from the RFID field
