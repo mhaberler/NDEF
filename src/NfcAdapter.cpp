@@ -19,25 +19,34 @@ void NfcAdapter::begin(bool verbose)
 #endif
 }
 
-bool NfcAdapter::tagPresent()
+bool
+NfcAdapter::tagPresent ()
 {
-    // If tag has already been authenticated nothing else will work until we stop crypto (shouldn't hurt)
-    shield->PCD_StopCrypto1();
+    // If tag has already been authenticated nothing else will work until we
+    // stop crypto (shouldn't hurt)
+    shield->PCD_StopCrypto1 ();
 
-    if(!(shield->PICC_IsNewCardPresent() && shield->PICC_ReadCardSerial()))
-    {
-        return false;
-    }
+    if (!(shield->PICC_IsNewCardPresent () && shield->PICC_ReadCardSerial ()))
+        {
+            return false;
+        }
 
-    MFRC522::PICC_Type piccType = shield->PICC_GetType(shield->uid.sak);
-    switch (piccType) {
-        case PICC_Type::PICC_TYPE_MIFARE_1K:
-        case PICC_Type::PICC_TYPE_MIFARE_UL:
+    MFRC522::PICC_Type piccType = shield->PICC_GetType (shield->uid.sak);
+    switch (piccType)
+        {
         case PICC_Type::PICC_TYPE_ISO_14443_4:
-        return true;
-        default:;
-    }
-    return false;
+        case PICC_Type::PICC_TYPE_ISO_18092:
+        case PICC_Type::PICC_TYPE_MIFARE_MINI:
+        case PICC_Type::PICC_TYPE_MIFARE_1K:
+        case PICC_Type::PICC_TYPE_MIFARE_4K:
+        case PICC_Type::PICC_TYPE_MIFARE_UL:
+        case PICC_Type::PICC_TYPE_MIFARE_PLUS:
+        case PICC_Type::PICC_TYPE_MIFARE_DESFIRE:
+        case PICC_Type::PICC_TYPE_TNP3XXX:
+            return true;
+        default: // PICC_TYPE_UNKNOWN, PICC_TYPE_NOT_COMPLETE
+            return false;
+        }
 }
 
 bool NfcAdapter::erase()

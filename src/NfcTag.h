@@ -15,15 +15,6 @@ public:
   using Uid = MFRC522Constants::Uid;
   using PICC_Type = MFRC522Constants::PICC_Type;
 
-  // enum TagType
-  // {
-  //   TYPE_MIFARE_CLASSIC = 0,
-  //   TYPE_1,
-  //   TYPE_2,
-  //   TYPE_3,
-  //   TYPE_4,
-  //   TYPE_UNKNOWN = 99
-  // };
   NfcTag(const Uid& uid, PICC_Type tagType);
   NfcTag(const Uid& uid, PICC_Type tagType, bool isFormatted);
   NfcTag(const Uid& uid, PICC_Type tagType, NdefMessage &ndefMessage);
