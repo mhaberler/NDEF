@@ -4,7 +4,7 @@
 NfcTag::NfcTag(const Uid &uid, PICC_Type tagType)
 {
     _uid = uid;
-        _tagType = tagType;
+    _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = false;
 }
@@ -12,7 +12,7 @@ NfcTag::NfcTag(const Uid &uid, PICC_Type tagType)
 NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, bool isFormatted)
 {
     _uid = uid;
-        _tagType = tagType;
+    _tagType = tagType;
     _ndefMessage = (NdefMessage *)NULL;
     _isFormatted = isFormatted;
 }
@@ -20,7 +20,7 @@ NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, bool isFormatted)
 NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, NdefMessage &ndefMessage)
 {
     _uid = uid;
-        _tagType = tagType;
+    _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefMessage);
     _isFormatted = true; // If it has a message it's formatted
 }
@@ -28,7 +28,7 @@ NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, NdefMessage &ndefMessage)
 NfcTag::NfcTag(const Uid &uid, PICC_Type tagType, const byte *ndefData, const uint16_t ndefDataLength)
 {
     _uid = uid;
-        _tagType = tagType;
+    _tagType = tagType;
     _ndefMessage = new NdefMessage(ndefData, ndefDataLength);
     _isFormatted = true; // If it has a message it's formatted
 }
@@ -44,7 +44,7 @@ NfcTag &NfcTag::operator=(const NfcTag &rhs)
     {
         delete _ndefMessage;
         _uid = rhs._uid;
-                _ndefMessage = new NdefMessage(*rhs._ndefMessage);
+        _ndefMessage = new NdefMessage(*rhs._ndefMessage);
     }
     return *this;
 }
