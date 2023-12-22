@@ -3,6 +3,7 @@
 
 #include <Due.h>
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <Ndef.h>
 
 class NdefRecord
@@ -86,6 +87,8 @@ public:
     void setPayload(const byte *payload, const int numBytes);
     void setPayload(const byte *header, const int headerLength, const byte *payload, const int payloadLength);
     void setId(const byte *id, const unsigned int numBytes);
+
+  bool toJson(JsonObject &result, bool detail = true);
 
     static const char *getURIScheme(NdefRecord::URIScheme scheme);
 

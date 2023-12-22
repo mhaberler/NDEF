@@ -327,6 +327,55 @@ void NdefRecord::setId(const byte *id, const unsigned int numBytes)
     memcpy(_id, id, numBytes);
     _idLength = numBytes;
 }
+
+bool NdefRecord::toJson(JsonObject &obj, bool detail)
+{
+  obj["tnf"] = (int)_tnf;
+  if (detail)
+  {
+    switch (_tnf)
+    {
+    case TNF_EMPTY:
+      obj["name"] = F("Empty");
+      break;
+    case TNF_WELL_KNOWN:
+      obj["name"] = F("Well Known");
+      break;
+    case TNF_MIME_MEDIA:
+      obj["name"] = F("Mime Media");
+      break;
+    case TNF_ABSOLUTE_URI:
+      obj["name"] = F("Absolute URI");
+      break;
+    case TNF_EXTERNAL_TYPE:
+      obj["name"] = F("External");
+      break;
+    case TNF_UNKNOWN:
+      obj["name"] = F("Unknown");
+      break;
+    case TNF_UNCHANGED:
+      obj["name"] = F("Unchanged");
+      break;
+    case TNF_RESERVED:
+      obj["name"] = F("Reserved");
+      break;
+    }
+  }
+  if (getTypeLength() > 0)
+  {
+    obj["type"] = String(getType(), getTypeLength());
+  }
+  if (getIdLength() > 0)
+  {
+    obj["id"] = String(getId(), getIdLength());
+  }
+  if (getPayloadLength() > 0)
+  {
+    obj["payload"] = String(getPayload(), getPayloadLength());
+  }
+  return true;
+}
+
 #ifdef NDEF_USE_SERIAL
 
 void NdefRecord::print()
