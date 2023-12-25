@@ -1,6 +1,8 @@
 #include "MifareClassic.h"
 #if NDEF_SUPPORT_MIFARE_CLASSIC
 
+static MFRC522::MIFARE_Key default_key = {{0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7}};
+
 MifareClassic::MifareClassic(MFRC522Extended *nfcShield)
 {
     _nfc = nfcShield;
@@ -10,18 +12,21 @@ MifareClassic::~MifareClassic()
 {
 }
 
-NfcTag MifareClassic::read()
+NfcTag MifareClassic::read(MFRC522::MIFARE_Key *key)
 {
-    MFRC522::MIFARE_Key key = {{0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7}};
+    if (key == NULL) {
+        key = &default_key;
+    }
     int messageStartIndex = 0;
     int messageLength = 0;
     byte dataSize = BLOCK_SIZE + 2;
     byte data[dataSize];
+    MFRC522::StatusCode sc = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, 4, key, &(_nfc->tag.uid));
 
     // read first block to get message length
-    if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(_nfc->uid)) == MFRC522Constants::STATUS_OK)
+    if (sc == MFRC522Constants::STATUS_OK)
     {
-        if (_nfc->MIFARE_Read(4, data, &dataSize) != MFRC522Constants::STATUS_OK)
+        if ((sc = _nfc->MIFARE_Read(4, data, &dataSize)) != MFRC522Constants::STATUS_OK)
         {
 #if NDEF_USE_SERIAL
             Serial.println(F("Error. Failed read block 4"));
@@ -67,7 +72,7 @@ NfcTag MifareClassic::read()
         if (((currentBlock < 128) && (currentBlock % 4 == 0)) || ((currentBlock >= 128) && (currentBlock % 16 == 0)))
         {
 
-            if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfc->uid)) != MFRC522Constants::STATUS_OK)
+            if ((sc = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, currentBlock, key, &(_nfc->tag.uid))) != MFRC522Constants::STATUS_OK)
             {
 #if NDEF_USE_SERIAL
                 Serial.print(F("Error. Block Authentication failed for "));
@@ -80,7 +85,7 @@ NfcTag MifareClassic::read()
 
         // read the data
         byte readBufferSize = 18;
-        if (_nfc->MIFARE_Read(currentBlock, &buffer[index], &readBufferSize) == MFRC522Constants::STATUS_OK)
+        if ((sc = _nfc->MIFARE_Read(currentBlock, &buffer[index], &readBufferSize)) == MFRC522Constants::STATUS_OK)
         {
 #ifdef MIFARE_CLASSIC_DEBUG
             Serial.print(F("Block "));
@@ -218,7 +223,7 @@ bool MifareClassic::formatNDEF()
     byte blockbuffer4[16] = {0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7, 0x7F, 0x07, 0x88, 0x40, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
     // TODO use UID from method parameters?
-    MFRC522Constants::StatusCode status = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, 1, &keya, &(_nfc->uid));
+    MFRC522Constants::StatusCode status = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, 1, &keya, &(_nfc->tag.uid));
     if (status != MFRC522Constants::STATUS_OK)
     {
 #if NDEF_USE_SERIAL
@@ -254,7 +259,7 @@ bool MifareClassic::formatNDEF()
     }
     for (int i = 4; i < 64; i += 4)
     {
-        if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, i, &keya, &(_nfc->uid)) != MFRC522Constants::STATUS_OK)
+        if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, i, &keya, &(_nfc->tag.uid)) != MFRC522Constants::STATUS_OK)
         {
 #if NDEF_USE_SERIAL
             Serial.print(F("Unable to authenticate block "));
@@ -335,7 +340,7 @@ bool MifareClassic::formatMifare()
     for (idx = 0; idx < numOfSector; idx++)
     {
         // Step 1: Authenticate the current sector using key B 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF
-        if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_B, BLOCK_NUMBER_OF_SECTOR_TRAILER(idx), &KEY_DEFAULT_KEYAB, &(_nfc->uid)) != MFRC522Constants::STATUS_OK)
+        if (_nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_B, BLOCK_NUMBER_OF_SECTOR_TRAILER(idx), &KEY_DEFAULT_KEYAB, &(_nfc->tag.uid)) != MFRC522Constants::STATUS_OK)
         {
 #if NDEF_USE_SERIAL
             Serial.print(F("Authentication failed for sector "));
@@ -437,7 +442,7 @@ bool MifareClassic::write(NdefMessage &m)
 
         if (((currentBlock < 128) && (currentBlock % 4 == 0)) || ((currentBlock >= 128) && (currentBlock % 16 == 0)))
         {
-            MFRC522::StatusCode status = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfc->uid));
+            MFRC522::StatusCode status = _nfc->PCD_Authenticate(MFRC522Constants::PICC_CMD_MF_AUTH_KEY_A, currentBlock, &key, &(_nfc->tag.uid));
             if (status != MFRC522Constants::STATUS_OK)
             {
 #if NDEF_USE_SERIAL
