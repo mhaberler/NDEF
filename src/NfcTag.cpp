@@ -81,6 +81,28 @@ String NfcTag::getUidString()
     return uidString;
 }
 
+
+String NfcTag::getAtsString()
+{
+    String atsString = "";
+    for (unsigned int i = 0; i < _taginfo.ats.size; i++)
+    {
+        if (i > 0)
+        {
+            atsString += " ";
+        }
+
+        if (_taginfo.ats.data[i] < 0xF)
+        {
+            atsString += "0";
+        }
+
+        atsString += String((unsigned int)_taginfo.ats.data[i], (unsigned char)HEX);
+    }
+    atsString.toUpperCase();
+    return atsString;
+}
+
 MFRC522Constants::PICC_Type NfcTag::getTagType()
 {
     return _tagType;
@@ -129,6 +151,7 @@ bool NfcTag::toJson(JsonDocument &doc)
     doc["atqa"] = _taginfo.atqa;
     doc["type"] = _tagType;
     doc["picc"] = MFRC522Debug::PICC_GetTypeName(_tagType);
+    doc["ats"] = getAtsString();
   }
   if (hasNdefMessage())
   {

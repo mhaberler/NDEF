@@ -27,6 +27,7 @@ public:
   uint8_t getUidLength();
   void getUid(byte *uid, uint8_t *uidLength);
   String getUidString();
+  String getAtsString();
   PICC_Type getTagType();
   bool hasNdefMessage();
   NdefMessage getNdefMessage();
