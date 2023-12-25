@@ -19,6 +19,7 @@ void NfcAdapter::begin(bool verbose)
 #endif
 }
 
+
 bool
 NfcAdapter::tagPresent ()
 {
@@ -121,7 +122,7 @@ NfcAdapter::read ()
         case PICC_Type::PICC_TYPE_MIFARE_4K:
             {
                 MifareClassic mifareClassic = MifareClassic (shield);
-                return mifareClassic.read ();
+                return mifareClassic.read (_key);
             }
 #endif
         case PICC_Type::PICC_TYPE_MIFARE_UL:

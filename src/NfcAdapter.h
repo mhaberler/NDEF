@@ -15,11 +15,14 @@ class NfcAdapter {
     using StatusCode = MFRC522Constants::StatusCode;
     using PICC_Command = MFRC522Constants::PICC_Command;
     using PICC_Type = MFRC522Constants::PICC_Type;
+    using MIFARE_Key = MFRC522Constants::MIFARE_Key;
+
     public:
         NfcAdapter(MFRC522Extended *interface);
 
         ~NfcAdapter(void);
         void begin(bool verbose=true);
+        void setMifareKey(MFRC522::MIFARE_Key *key){ _key = key;};
         bool tagPresent(); // tagAvailable
         NfcTag read();
         bool write(NdefMessage& ndefMessage);
@@ -32,6 +35,7 @@ class NfcAdapter {
         void haltTag();
     private:
         MFRC522Extended* shield;
+        MFRC522::MIFARE_Key *_key;
         PICC_Type getTagType();
 };
 

@@ -25,7 +25,7 @@ public:
 
     MifareClassic(MFRC522Extended *nfcShield);
     ~MifareClassic();
-    NfcTag read();
+    NfcTag read(MFRC522::MIFARE_Key *key = NULL);
     bool write(NdefMessage &ndefMessage);
     bool formatNDEF();
     bool formatMifare();
