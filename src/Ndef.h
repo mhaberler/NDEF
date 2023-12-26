@@ -16,4 +16,7 @@ void PrintHexChar(const byte *data, const long numBytes);
 void DumpHex(const byte *data, const long numBytes, const int blockSize);
 #endif
 
+// stolen from https://github.com/h2zero/NimBLE-Arduino/blob/release/1.4/src/NimBLEUtils.cpp
+char* buildHexData(uint8_t* target, const uint8_t* source, uint8_t length);
+
 #endif

@@ -62,22 +62,11 @@ void NfcTag::getUid(byte *uid, uint8_t *uidLength)
 
 String NfcTag::getUidString()
 {
-    String uidString = "";
-    for (unsigned int i = 0; i < _taginfo.uid.size; i++)
-    {
-        if (i > 0)
-        {
-            uidString += " ";
-        }
-
-        if (_taginfo.uid.uidByte[i] < 0xF)
-        {
-            uidString += "0";
-        }
-
-        uidString += String((unsigned int)_taginfo.uid.uidByte[i], (unsigned char)HEX);
-    }
-    uidString.toUpperCase();
+    if (_taginfo.uid.size == 0)
+        return "";
+    char *hd =  buildHexData (NULL, (uint8_t*)_taginfo.uid.uidByte, _taginfo.uid.size);
+    String uidString = String(hd, strlen(hd));
+    free(hd);
     return uidString;
 }
 
@@ -86,25 +75,15 @@ size_t NfcTag::getAtsSize()
     return _taginfo.ats.size;
 }
 
-
-String NfcTag::getAtsString()
+String
+NfcTag::getAtsString ()
 {
-    String atsString = "";
-    for (unsigned int i = 0; i < _taginfo.ats.size; i++)
-    {
-        if (i > 0)
-        {
-            atsString += " ";
-        }
-
-        if (_taginfo.ats.data[i] < 0xF)
-        {
-            atsString += "0";
-        }
-
-        atsString += String((unsigned int)_taginfo.ats.data[i], (unsigned char)HEX);
-    }
-    atsString.toUpperCase();
+    if (_taginfo.ats.size == 0)
+        return "";
+    char *hd
+        = buildHexData (NULL, (uint8_t *)_taginfo.ats.data, _taginfo.ats.size);
+    String atsString = String (hd, strlen (hd));
+    free (hd);
     return atsString;
 }
 
