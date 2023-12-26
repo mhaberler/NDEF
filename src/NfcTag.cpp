@@ -81,6 +81,11 @@ String NfcTag::getUidString()
     return uidString;
 }
 
+size_t NfcTag::getAtsSize()
+{
+    return _taginfo.ats.size;
+}
+
 
 String NfcTag::getAtsString()
 {
@@ -142,21 +147,25 @@ void NfcTag::print()
 }
 #endif
 
-bool NfcTag::toJson(JsonDocument &doc)
+bool
+NfcTag::toJson (JsonDocument &doc)
 {
-  if (getUidLength())
-  {
-    doc["uid"] = getUidString();
-    doc["sak"] = _taginfo.uid.sak;
-    doc["atqa"] = _taginfo.atqa;
-    doc["type"] = _tagType;
-    doc["picc"] = MFRC522Debug::PICC_GetTypeName(_tagType);
-    doc["ats"] = getAtsString();
-  }
-  if (hasNdefMessage())
-  {
-    JsonArray ndef = doc.createNestedArray("ndef");
-    getNdefMessage().toJson(ndef);
-  }
-  return true;
+    if (getUidLength ())
+        {
+            doc["uid"] = getUidString ();
+            doc["sak"] = String (_taginfo.uid.sak, HEX);
+            doc["atqa"] = String (_taginfo.atqa, HEX);
+            doc["type"] = _tagType;
+            doc["picc"] = MFRC522Debug::PICC_GetTypeName (_tagType);
+            if (getAtsSize ())
+                {
+                    doc["ats"] = getAtsString ();
+                }
+        }
+    if (hasNdefMessage ())
+        {
+            JsonArray ndef = doc.createNestedArray ("ndef");
+            getNdefMessage ().toJson (ndef);
+        }
+    return true;
 }
