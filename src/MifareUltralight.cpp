@@ -132,8 +132,14 @@ void MifareUltralight::findNdefMessage(uint16_t *messageLength, uint16_t *ndefSt
 
         if (data[0] == 0x03)
         {
-            *messageLength = data[1];
-            *ndefStartIndex = 2;
+            if (data[1] == 0xff) {
+                *messageLength = ((uint16_t)data[2] << 8) | data[3];
+                *ndefStartIndex = 4;
+            } else {
+                *messageLength = data[1];
+                *ndefStartIndex = 2;
+            }
+ 
         }
         else if (data[5] == 0x3) // page 5 byte 1
         {
