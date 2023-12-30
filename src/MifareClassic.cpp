@@ -87,7 +87,7 @@ NfcTag MifareClassic::read(MFRC522::MIFARE_Key *key)
         byte readBufferSize = 18;
         if ((sc = _nfc->MIFARE_Read(currentBlock, &buffer[index], &readBufferSize)) == MFRC522Constants::STATUS_OK)
         {
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
             Serial.print(F("Block "));
             Serial.print(currentBlock);
             Serial.print(" ");
@@ -110,7 +110,7 @@ NfcTag MifareClassic::read(MFRC522::MIFARE_Key *key)
         // skip the trailer block
         if (((currentBlock < 128) && ((currentBlock + 1) % 4 == 0)) || ((currentBlock >= 128) && ((currentBlock + 1) % 16 == 0)))
         {
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
             Serial.print(F("Skipping block "));
             Serial.println(currentBlock);
 #endif
@@ -463,7 +463,7 @@ bool MifareClassic::write(NdefMessage &m)
             return false;
         }
 
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
         Serial.print(F("Wrote block "));
         Serial.print(currentBlock);
         Serial.print(" - ");
