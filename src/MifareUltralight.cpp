@@ -32,9 +32,9 @@ NfcTag MifareUltralight::read()
         return NfcTag(_nfc->tag, PICC_Type::PICC_TYPE_MIFARE_UL, message);//FIXME
     }
 
-    uint8_t index = 0;
-    byte buffer[bufferSize+16];
-    for (uint8_t page = ULTRALIGHT_DATA_START_PAGE; page < ULTRALIGHT_MAX_PAGE; page += (ULTRALIGHT_READ_SIZE / ULTRALIGHT_PAGE_SIZE))
+    uint16_t index = 0;
+    byte buffer[bufferSize];
+    for (uint8_t page = ULTRALIGHT_DATA_START_PAGE; index < messageLength; page += (ULTRALIGHT_READ_SIZE / ULTRALIGHT_PAGE_SIZE))
     {
         // read the data
         byte dataSize = ULTRALIGHT_READ_SIZE + 2;
