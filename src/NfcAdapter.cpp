@@ -44,7 +44,7 @@ NfcAdapter::tagPresent ()
         case PICC_Type::PICC_TYPE_MIFARE_PLUS:
         case PICC_Type::PICC_TYPE_MIFARE_DESFIRE:
         case PICC_Type::PICC_TYPE_TNP3XXX:
-        case PICC_Type::PICC_TYPE_NTAG424DNA:
+        // case PICC_Type::PICC_TYPE_NTAG424DNA:
             return true;
         default: // PICC_TYPE_UNKNOWN, PICC_TYPE_NOT_COMPLETE
             return false;
