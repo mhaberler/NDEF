@@ -102,7 +102,7 @@ uint16_t MifareUltralight::readTagSize()
     {
         // See AN1303 - different rules for Mifare Family byte2 = (additional data + 48)/8
         tagCapacity = data[2] * 8;
-#ifdef MIFARE_ULTRALIGHT_DEBUG
+#if MIFARE_ULTRALIGHT_DEBUG
         Serial.print(F("Tag capacity "));
         Serial.print(tagCapacity);
         Serial.println(F(" bytes"));
@@ -149,7 +149,7 @@ void MifareUltralight::findNdefMessage(uint16_t *messageLength, uint16_t *ndefSt
         }
     }
 
-#ifdef MIFARE_ULTRALIGHT_DEBUG
+#if MIFARE_ULTRALIGHT_DEBUG
     Serial.print(F("messageLength "));
     Serial.println(*messageLength);
     Serial.print(F("ndefStartIndex "));
@@ -193,7 +193,7 @@ bool MifareUltralight::write(NdefMessage &m)
 
     if (bufferSize > tagCapacity)
     {
-#ifdef MIFARE_ULTRALIGHT_DEBUG
+#if MIFARE_ULTRALIGHT_DEBUG
         Serial.print(F("Encoded Message length exceeded tag Capacity "));
         Serial.println(tagCapacity);
 #endif

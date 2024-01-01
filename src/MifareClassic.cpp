@@ -58,7 +58,7 @@ NfcTag MifareClassic::read(MFRC522::MIFARE_Key *key)
     int bufferSize = getBufferSize(messageLength) + 2;
     uint8_t buffer[bufferSize];
 
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
     Serial.print(F("Message Length "));
     Serial.println(messageLength);
     Serial.print(F("Buffer Size "));
@@ -408,7 +408,7 @@ bool MifareClassic::write(NdefMessage &m)
     uint8_t buffer[getBufferSize(sizeof(encoded))];
     memset(buffer, 0, sizeof(buffer));
 
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
     Serial.print(F("sizeof(encoded) "));
     Serial.println(sizeof(encoded));
     Serial.print(F("sizeof(buffer) "));
@@ -476,7 +476,7 @@ bool MifareClassic::write(NdefMessage &m)
         if (((currentBlock < 128) && ((currentBlock + 1) % 4 == 0)) || ((currentBlock >= 128) && ((currentBlock + 1) % 16 == 0)))
         {
 // can't write to trailer block
-#ifdef MIFARE_CLASSIC_DEBUG
+#if MIFARE_CLASSIC_DEBUG
             Serial.print(F("Skipping block "));
             Serial.println(currentBlock);
 #endif
