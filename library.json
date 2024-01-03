@@ -1,24 +1,25 @@
 {
-  "name": "NDEF_MFRC522",
-  "version": "1.0.0",
+  "name": "NDEF_MFRC522v2",
+  "version": "1.0.1",
   "description": "Read and write NDEF messages to NFC tags and peers. Ported to the MFRC522 reader.",
   "keywords": "ndef, mfrc522, rfid",
   "repository": {
     "type": "git",
-    "url": "https://github.com/IktaS/NDEF.git"
+    "url": "https://github.com/mhaberler/NDEF.git"
   },
   "authors": [
     {
-      "name": "Imam Rafii",
-      "email": "ikta@ikta.dev",
-      "url": "https://github.com/IktaS",
+      "name": "Michael Haberler",
+      "email": "git@mah.priv.at",
+      "url": "https://github.com/mhaberler",
       "maintainer": true
     }
   ],
   "license": "BSD-3-Clause",
-  "homepage": "https://github.com/IktaS/NDEF",
+  "homepage": "https://github.com/mhaberler/NDEF",
   "dependencies": {
-    "computer991/Arduino_MFRC522v2": "^2.0.1"
+    "computer991/Arduino_MFRC522v2": "^2.0.1",
+    "https://github.com/mhaberler/Arduino_MFRC522v2Extended.git":  "master"
   },
   "frameworks": [
     "Arduino"
