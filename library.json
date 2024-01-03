@@ -19,7 +19,7 @@
   "homepage": "https://github.com/mhaberler/NDEF",
   "dependencies": {
     "computer991/Arduino_MFRC522v2": "^2.0.1",
-    "https://github.com/mhaberler/Arduino_MFRC522v2Extended.git":  "master"
+    "external-repo" : "https://github.com/mhaberler/Arduino_MFRC522v2Extended.git#master"
   },
   "frameworks": [
     "Arduino"
