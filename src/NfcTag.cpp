@@ -123,7 +123,7 @@ NfcTag::tagToJson (JsonDocument &doc) {
 }
 
 bool
-NfcTag::tagToJson (JsonDocument &doc) {
+NfcTag::ndefToJson (JsonDocument &doc) {
 
     if (hasNdefMessage ()) {
         JsonArray ndef = doc.createNestedArray ("ndef");
