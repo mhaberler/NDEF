@@ -126,7 +126,7 @@ bool
 NfcTag::ndefToJson (JsonDocument &doc) {
 
     if (hasNdefMessage ()) {
-        JsonArray ndef = doc.createNestedArray ("ndef");
+        JsonArray ndef = doc["ndef"].to<JsonArray>();
         getNdefMessage ().toJson (ndef);
         return true;
     }
